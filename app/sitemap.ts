@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages = ["", "/about", "/programs", "/events", "/blog", "/get-involved", "/donate", "/donations", "/pricing", "/apply", "/contact", "/board", "/alumni", "/impact"];
   return [
     ...pages.map(p => ({ url: site.url + p, changeFrequency: "weekly" as const, priority: p === "" ? 1 : .7 })),
+    ...seed.board.map(m => ({ url: `${site.url}/board/${m.slug}`, priority: .4 })),
     ...seed.programs.map(p => ({ url: `${site.url}/programs/${p.slug}`, priority: .5 })),
     ...seed.events.filter(e => e.published).map(e => ({ url: `${site.url}/events/${e.slug}`, lastModified: e.date, priority: .6 })),
     ...seed.posts.filter(p => p.published).map(p => ({ url: `${site.url}/blog/${p.slug}`, lastModified: p.date, priority: .5 })),

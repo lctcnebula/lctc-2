@@ -34,7 +34,10 @@ export type StoredApplication = Application & { status: string; sample?: boolean
 
 export type Message = { id: string; name: string; email: string; topic: string; message: string; status: string; createdAt: string; sample?: boolean };
 
-export type BoardMember = { id: string; name: string; role: string; bio: string; photo: string; order: number; sample?: boolean };
+// slug, company and linkedin were added later, so members saved before then may not have them (see boardSlug).
+export type BoardMember = {
+  id: string; slug?: string; name: string; role: string; company?: string; bio: string; photo: string; linkedin?: string; order: number; sample?: boolean;
+};
 
 export type Alum = {
   id: string; name: string; email: string; program: string; year: string; now: string; story: string;
@@ -185,20 +188,20 @@ export const seed = {
 
   // From the Foundation's board photo (2026). Staff first, then volunteer board members A–Z.
   board: [
-    { id: "bm-kapala", name: "Dr. Sebastian Kapala", role: "LCTC Executive Director", bio: "Executive Director of Lake County Tech Campus.", photo: "/assets/board/kapala.jpg", order: 1 },
-    { id: "bm-hughes", name: "Joanne Hughes", role: "Chief Financial Officer / CSBO", bio: "Business manager and chief school business official for Lake County Tech Campus.", photo: "/assets/board/hughes.jpg", order: 2 },
-    { id: "bm-del-rio", name: "Elizabeth Del Rio", role: "Foundation & Stakeholder Relations Officer", bio: "Oversees the Foundation and leads coordination with partners, stakeholders and community organizations.", photo: "/assets/board/del-rio.jpg", order: 3 },
-    { id: "bm-dickson", name: "Sue Dickson", role: "Board Member", bio: "", photo: "/assets/board/dickson.jpg", order: 4 },
-    { id: "bm-doll", name: "Don Doll", role: "Board Member", bio: "", photo: "/assets/board/doll.jpg", order: 5 },
-    { id: "bm-golwitzer", name: "Bettina Golwitzer", role: "Board Member", bio: "", photo: "/assets/board/golwitzer.jpg", order: 6 },
-    { id: "bm-harris", name: "James Dean Harris", role: "Board Member", bio: "", photo: "/assets/board/harris.jpg", order: 7 },
-    { id: "bm-kischer", name: "Leslie Kischer", role: "Board Member", bio: "", photo: "/assets/board/kischer.jpg", order: 8 },
-    { id: "bm-kleber", name: "Norm Kleber", role: "Board Member", bio: "", photo: "/assets/board/kleber.jpg", order: 9 },
-    { id: "bm-maksimovic", name: "Dalibor Maksimovic", role: "Board Member", bio: "", photo: "/assets/board/maksimovic.jpg", order: 10 },
-    { id: "bm-neal", name: "Tamika Neal", role: "Board Member", bio: "", photo: "/assets/board/neal.jpg", order: 11 },
-    { id: "bm-obrien", name: "John O'Brien", role: "Board Member", bio: "", photo: "/assets/board/obrien.jpg", order: 12 },
-    { id: "bm-taques", name: "Carlos Taques", role: "Board Member", bio: "", photo: "/assets/board/taques.jpg", order: 13 },
-    { id: "bm-torossy", name: "Vincent Torossy", role: "Board Member", bio: "", photo: "/assets/board/torossy.jpg", order: 14 },
+    { id: "bm-kapala", slug: "sebastian-kapala", name: "Dr. Sebastian Kapala", role: "LCTC Executive Director", bio: "Executive Director of Lake County Tech Campus.", company: "", linkedin: "", photo: "/assets/board/kapala.jpg", order: 1 },
+    { id: "bm-hughes", slug: "joanne-hughes", name: "Joanne Hughes", role: "Chief Financial Officer / CSBO", bio: "Business manager and chief school business official for Lake County Tech Campus.", company: "", linkedin: "", photo: "/assets/board/hughes.jpg", order: 2 },
+    { id: "bm-del-rio", slug: "elizabeth-del-rio", name: "Elizabeth Del Rio", role: "Foundation & Stakeholder Relations Officer", bio: "Oversees the Foundation and leads coordination with partners, stakeholders and community organizations.", company: "", linkedin: "", photo: "/assets/board/del-rio.jpg", order: 3 },
+    { id: "bm-dickson", slug: "sue-dickson", name: "Sue Dickson", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/dickson.jpg", order: 4 },
+    { id: "bm-doll", slug: "don-doll", name: "Don Doll", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/doll.jpg", order: 5 },
+    { id: "bm-golwitzer", slug: "bettina-golwitzer", name: "Bettina Golwitzer", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/golwitzer.jpg", order: 6 },
+    { id: "bm-harris", slug: "james-dean-harris", name: "James Dean Harris", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/harris.jpg", order: 7 },
+    { id: "bm-kischer", slug: "leslie-kischer", name: "Leslie Kischer", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/kischer.jpg", order: 8 },
+    { id: "bm-kleber", slug: "norm-kleber", name: "Norm Kleber", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/kleber.jpg", order: 9 },
+    { id: "bm-maksimovic", slug: "dalibor-maksimovic", name: "Dalibor Maksimovic", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/maksimovic.jpg", order: 10 },
+    { id: "bm-neal", slug: "tamika-neal", name: "Tamika Neal", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/neal.jpg", order: 11 },
+    { id: "bm-obrien", slug: "john-obrien", name: "John O'Brien", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/obrien.jpg", order: 12 },
+    { id: "bm-taques", slug: "carlos-taques", name: "Carlos Taques", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/taques.jpg", order: 13 },
+    { id: "bm-torossy", slug: "vincent-torossy", name: "Vincent Torossy", role: "Board Member", bio: "", company: "", linkedin: "", photo: "/assets/board/torossy.jpg", order: 14 },
   ] as BoardMember[],
 
   alumni: [

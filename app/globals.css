@@ -562,7 +562,8 @@ footer.site { background: var(--blue-night); color: rgba(255,255,255,.72); paddi
 }
 @media (max-width: 1060px) {
   .give-types, .tiers, .program-impact, .pillars, .roadmap, .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .major, .promises { grid-template-columns: minmax(0, 1fr); }
+  .major, .promises, .profile { grid-template-columns: minmax(0, 1fr); }
+  .profile-card { position: static; }
 }
 @media (max-width: 600px) {
   .fund-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -627,6 +628,25 @@ footer.site { background: var(--blue-night); color: rgba(255,255,255,.72); paddi
 .person small { display: block; font-size: .66rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--spark-ink); }
 .person h3 { font-size: 1.1rem; margin-top: 4px; }
 .person p { color: var(--muted); font-size: .88rem; margin-top: 8px; }
+a.person { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; transition: transform .25s var(--ease), border-color .2s, box-shadow .25s; }
+a.person:hover { transform: translateY(-4px); border-color: #cfdbe8; box-shadow: 0 24px 44px -30px rgba(1,63,108,.5); }
+a.person > p:not(.company) { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.person .company { color: var(--ink); font-weight: 600; margin-top: 2px; }
+.person .more { margin-top: auto; padding-top: 14px; }
+.page-hero.short .wrap { padding-block: 26px; }
+.page-hero.short .crumbs { margin: 0; }
+.profile { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: clamp(32px, 5vw, 64px); align-items: start; }
+.profile-card { position: sticky; top: 110px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.profile-card .avatar { width: 200px; height: 200px; font-size: 3.4rem; }
+.profile-card h1 { font-size: 1.5rem; line-height: 1.2; margin-top: 4px; }
+.profile-card .btn { margin-top: 14px; }
+.lead-muted { color: var(--muted); font-size: 1.05rem; max-width: 60ch; }
+.profile-nav { display: flex; justify-content: space-between; gap: 16px; margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+.profile-nav a { text-decoration: none; display: grid; gap: 2px; }
+.profile-nav a.next { text-align: right; }
+.profile-nav small { font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); }
+.profile-nav b { font-size: 1rem; }
+.link-btn:disabled { opacity: .3; cursor: default; text-decoration: none; }
 .alum .media { aspect-ratio: 4 / 3; }
 .alum-now { font-weight: 600; color: var(--blue) !important; }
 .years { display: grid; gap: 20px; }
