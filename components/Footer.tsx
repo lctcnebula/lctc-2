@@ -21,7 +21,7 @@ export default function Footer() {
               <li><Link href="/get-involved">Get involved</Link></li>
               <li><Link href="/donate">Donate</Link></li>
               <li><Link href="/donations">Types of donations</Link></li>
-              <li><Link href="/pricing">Giving levels</Link></li>
+              <li><Link href="/pricing">Giving tiers</Link></li>
             </ul>
           </div>
           <div>
