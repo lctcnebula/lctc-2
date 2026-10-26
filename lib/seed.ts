@@ -25,18 +25,28 @@ export type Post = {
 
 export type Subscriber = { id: string; email: string; name: string; createdAt: string; sample?: boolean };
 
+export type Freq = "once" | "monthly" | "yearly";
+export const frequencies: Record<Freq, { label: string; adj: string; per: string; short: string }> = {
+  once: { label: "One-time", adj: "one-time", per: "", short: "" },
+  monthly: { label: "Monthly", adj: "monthly", per: " / month", short: "/mo" },
+  yearly: { label: "Yearly", adj: "yearly", per: " / year", short: "/yr" },
+};
+
 export type Donation = {
-  id: string; receipt: string; name: string; email: string; amount: number; freq: "once" | "monthly";
-  fund: string; card: string; createdAt: string; sample?: boolean;
+  id: string; receipt: string; name: string; email: string; amount: number; freq: Freq;
+  fund: string; tier?: string; card: string; createdAt: string; sample?: boolean;
+  // Set when the donor gives in someone's name ("I am donating in memory of …"). keepInTouch: they asked for updates.
+  dedication?: string; note?: string; keepInTouch?: boolean;
 };
 
 export type StoredApplication = Application & { status: string; sample?: boolean };
 
 export type Message = { id: string; name: string; email: string; topic: string; message: string; status: string; createdAt: string; sample?: boolean };
 
-// slug, company and linkedin were added later, so members saved before then may not have them (see boardSlug).
+// slug, company and the website/social links were added later, so members saved before then may not have them (see boardSlug).
 export type BoardMember = {
-  id: string; slug?: string; name: string; role: string; company?: string; bio: string; photo: string; linkedin?: string; order: number; sample?: boolean;
+  id: string; slug?: string; name: string; role: string; company?: string; bio: string; photo: string;
+  website?: string; linkedin?: string; facebook?: string; instagram?: string; x?: string; order: number; sample?: boolean;
 };
 
 export type Alum = {

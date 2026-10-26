@@ -24,16 +24,18 @@ function read<K extends keyof DB>(k: K): DB[K] {
 
 // Seed items added after this browser first saved a collection would otherwise never show up.
 // "lctc:_seen" remembers which seed ids each collection has already been given, so new ones are
-// added once while ones an admin deleted stay deleted.
+// added once while ones an admin deleted stay deleted. Untouched placeholder items that the seed
+// no longer has (e.g. the old "Name to be added" board seats) are dropped.
 function withNewSeed<K extends keyof DB>(k: K, stored: DB[K]): DB[K] {
-  const list = stored as { id: string }[], fresh = seed[k] as { id: string }[];
+  const fresh = seed[k] as { id: string }[], ids = new Set(fresh.map(x => x.id));
+  const list = (stored as { id: string; sample?: boolean }[]).filter(x => !x.sample || ids.has(x.id));
   let seen: Record<string, string[]> = {};
   try { seen = JSON.parse(localStorage.getItem(PREFIX + "_seen") || "{}"); } catch {}
   const known = new Set([...(seen[k] || []), ...list.map(x => x.id)]);
   const added = fresh.filter(x => !known.has(x.id));
-  seen[k] = fresh.map(x => x.id);
+  seen[k] = [...ids];
   try { localStorage.setItem(PREFIX + "_seen", JSON.stringify(seen)); } catch {}
-  return (added.length ? [...list, ...added] : list) as DB[K];
+  return [...list, ...added] as DB[K];
 }
 
 function write<K extends keyof DB>(k: K, v: DB[K]) {

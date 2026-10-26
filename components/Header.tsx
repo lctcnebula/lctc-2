@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { HeaderCart } from "./CartButton";
 
 const links = [
   { href: "/about", label: "About" },
@@ -49,6 +50,7 @@ export default function Header() {
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 3 4.5 6.8 4.5c2.1 0 3.6 1.1 4.2 2.4h2c.6-1.3 2.1-2.4 4.2-2.4 3.8 0 5.9 4 4.4 7.3C19.5 16.4 12 21 12 21Z" /></svg>
           Donate
         </Link>
+        <HeaderCart />
         <button className="menu-toggle" type="button" aria-controls="nav" aria-expanded={open} aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(o => !o)}>
           <span /><span /><span />
         </button>
