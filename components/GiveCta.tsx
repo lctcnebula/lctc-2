@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { ConfettiButton, DonateButton } from "./Actions";
 
-export default function GiveCta() {
+// On the donate page itself `href` points back up to the checkout instead of reloading /donate.
+export default function GiveCta({ href }: { href?: string }) {
   return (
     <div className="cta reveal">
       <div>
@@ -8,7 +10,7 @@ export default function GiveCta() {
         <p>Your gift puts scholarships, tools and certifications in the hands of Lake County students. Give once, monthly or yearly, and every gift gets a little confetti.</p>
       </div>
       <div className="hero-actions" style={{ marginTop: 0 }}>
-        <DonateButton className="btn solid">Make your gift today</DonateButton>
+        {href ? <Link className="btn solid" href={href}>Make your gift today</Link> : <DonateButton className="btn solid">Make your gift today</DonateButton>}
         <ConfettiButton>Throw confetti 🎉</ConfettiButton>
       </div>
     </div>

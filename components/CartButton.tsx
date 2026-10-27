@@ -3,12 +3,13 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSite } from "./Providers";
-import { addToCart, describe, MAX_QTY, removeFromCart, repeats, setQty, totals, useCart } from "@/lib/cart";
-import { givingTiers, money } from "@/lib/content";
+import { describe, MAX_QTY, removeFromCart, repeats, setQty, totals, useCart } from "@/lib/cart";
+import { money } from "@/lib/content";
 import { frequencies } from "@/lib/seed";
 
 // The giving list (the donation cart) is a sidebar that slides in from the right on every page. Anything can open it
-// with openGivingList(); the donate page listens for CHECKOUT / ADD_MORE to switch step without reloading.
+// with openGivingList(); the donate page listens for CHECKOUT / ADD_MORE to switch step without reloading. The sidebar is a quick review;
+// the checkout shows the same editable list, so donors never have to bounce between the two.
 const OPEN = "lctc:open-giving-list";
 export const CHECKOUT = "lctc:checkout";
 export const ADD_MORE = "lctc:add-more";
@@ -27,7 +28,6 @@ export function HeaderCart() {
 
 export function GivingSidebar() {
   const cart = useCart(), pathname = usePathname(), router = useRouter();
-  const { say } = useSite();
   const [open, setOpen] = useState(false);
   const closeBtn = useRef<HTMLButtonElement>(null);
   const opener = useRef<Element | null>(null);
@@ -54,10 +54,16 @@ export function GivingSidebar() {
   }, [open]);
 
   // On /donate the checkout just changes step; anywhere else it goes there first.
-  const go = (event: string, url: string) => {
+  const pay = () => {
     setOpen(false);
-    if (pathname === "/donate") dispatchEvent(new Event(event));
-    else router.push(url);
+    if (pathname === "/donate") dispatchEvent(new Event(CHECKOUT));
+    else router.push("/donate?pay=1");
+  };
+  // "Add another gift" goes to the pillars and giving tiers further down the donate page.
+  const addMore = () => {
+    setOpen(false);
+    if (pathname === "/donate") { dispatchEvent(new Event(ADD_MORE)); document.getElementById("pillars")?.scrollIntoView({ behavior: "smooth" }); }
+    else router.push("/donate#pillars");
   };
 
   const sum = totals(cart);
@@ -67,53 +73,27 @@ export function GivingSidebar() {
       <aside className={"giving-sidebar" + (open ? " open" : "")} role="dialog" aria-modal="true" aria-labelledby="gl-title" inert={!open}>
         <header>
           <div>
-            <h2 id="gl-title">Your giving list</h2>
+            <h2 id="gl-title">Review your giving list</h2>
             <p>{cart.length ? `${cart.length} ${cart.length === 1 ? "gift" : "gifts"} for Lake County Tech Campus students` : "Nothing here yet"}</p>
           </div>
           <button ref={closeBtn} type="button" className="gl-close" aria-label="Close giving list" onClick={() => setOpen(false)}>×</button>
         </header>
 
         {cart.length ? <>
-          <ul className="cart-lines">
-            {cart.map(i => {
-              const d = describe(i);
-              return (
-                <li key={i.id}>
-                  <i aria-hidden="true">{d.icon}</i>
-                  <div className="cart-info">
-                    <b>{d.title}</b>
-                    <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : "Any amount"}</span>
-                    {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
-                    {d.fixed && (
-                      <div className="qty sm" role="group" aria-label={`How many: ${d.title}`}>
-                        <button type="button" aria-label="One fewer" disabled={i.qty <= 1} onClick={() => setQty(i.id, i.qty - 1)}>−</button>
-                        <output aria-live="polite">{i.qty}</output>
-                        <button type="button" aria-label="One more" disabled={i.qty >= MAX_QTY} onClick={() => setQty(i.id, i.qty + 1)}>+</button>
-                        <small>× {money(d.unit!)}</small>
-                      </div>
-                    )}
-                    <div className="cart-price">
-                      <b>{d.price}</b>
-                      <button type="button" className="link-btn" onClick={() => { removeFromCart(i.id); say(`Removed ${d.title.toLowerCase()} from your giving list`); }}>Remove</button>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <GivingLines />
           <footer>
             <dl className="cart-total">
               <div><dt>Total today</dt><dd>{money(sum.today)}</dd></div>
               {(sum.monthly > 0 || sum.yearly > 0) && <p className="hint">Then {repeats(sum)}, until you cancel.</p>}
             </dl>
-            <button className="btn blue pay" type="button" onClick={() => go(CHECKOUT, "/donate?pay=1")}>Continue to payment · {money(sum.today)}</button>
-            <button className="btn line pay" type="button" onClick={() => go(ADD_MORE, "/donate")}>+ Add another gift</button>
+            <button className="btn blue pay" type="button" onClick={pay}>Continue to payment · {money(sum.today)}</button>
+            <button className="btn line pay" type="button" onClick={addMore}>+ Add another gift</button>
           </footer>
         </> : (
           <div className="cart-empty">
             <p>🎁 Your giving list is empty.</p>
             <p className="hint">Choose a scholarship, a toolkit or any amount, and it&apos;ll wait here until you&apos;re ready to give.</p>
-            <button className="btn blue" type="button" onClick={() => go(ADD_MORE, "/donate")}>Choose a gift</button>
+            <button className="btn blue" type="button" onClick={addMore}>Choose a gift</button>
           </div>
         )}
       </aside>
@@ -121,16 +101,38 @@ export function GivingSidebar() {
   );
 }
 
-// "Add to giving list" for a giving tier, used on the pricing page.
-export function AddTierToCart({ name, className = "btn line" }: { name: string; className?: string }) {
+// Every gift on the list, with − / + for fixed-price gifts and Remove. Used in the sidebar and in the checkout itself,
+// so donors can change the list without leaving the page they're on.
+export function GivingLines() {
+  const cart = useCart();
   const { say } = useSite();
-  const t = givingTiers.find(x => x.name === name);
-  if (!t) return null;
   return (
-    <button type="button" className={className} onClick={() => {
-      addToCart({ type: t.type, tier: t.name, qty: 1, amount: t.amount, freq: "once", purpose: "general", who: "", why: "", note: "" });
-      say(`Added ${t.item.toLowerCase()} to your giving list`);
-      openGivingList();
-    }}>Add to giving list</button>
+    <ul className="cart-lines">
+      {cart.map(i => {
+        const d = describe(i);
+        return (
+          <li key={i.id}>
+            <i aria-hidden="true">{d.icon}</i>
+            <div className="cart-info">
+              <b>{d.title}</b>
+              <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : d.fixed ? "Pillar gift" : "Any amount"}</span>
+              {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
+              {d.fixed && (
+                <div className="qty sm" role="group" aria-label={`How many: ${d.title}`}>
+                  <button type="button" aria-label="One fewer" disabled={i.qty <= 1} onClick={() => setQty(i.id, i.qty - 1)}>−</button>
+                  <output aria-live="polite">{i.qty}</output>
+                  <button type="button" aria-label="One more" disabled={i.qty >= MAX_QTY} onClick={() => setQty(i.id, i.qty + 1)}>+</button>
+                  <small>× {money(d.unit!)}</small>
+                </div>
+              )}
+              <div className="cart-price">
+                <b>{d.price}</b>
+                <button type="button" className="link-btn" onClick={() => { removeFromCart(i.id); say(`Removed ${d.title.toLowerCase()} from your giving list`); }}>Remove</button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
