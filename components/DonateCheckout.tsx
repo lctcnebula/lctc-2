@@ -272,17 +272,8 @@ export default function DonateCheckout() {
             )}
             <h2 className="dm-title" id="dm-title">Choose a gift</h2>
             <p className="dm-sub">Pick what your gift supports, set an amount, then add it to your giving list. Add as many gifts as you like and pay for them together.</p>
-            {/* Fixed-price items come first; a general or pillar gift of any amount is the fallback below them. */}
             <fieldset className="contribs">
-              <legend>Fund something specific</legend>
-              {givingTiers.map(x => (
-                <label className="choice" key={x.name}>
-                  <input type="radio" name="contrib" checked={chosenTier?.name === x.name} onChange={() => choose("tier:" + x.name)} />
-                  <div><b>{x.item}</b><span>{x.impact}</span></div>
-                  <em>{money(x.amount)}{x.min ? "+" : ""}</em>
-                </label>
-              ))}
-              <p className="contribs-or">Or give any amount to</p>
+              <legend>Your contribution</legend>
               {donationTypes.map(t => (
                 <label className="choice" key={t.slug}>
                   <input type="radio" name="contrib" checked={!chosenTier && type.slug === t.slug} onChange={() => choose(t.slug)} />
@@ -290,6 +281,16 @@ export default function DonateCheckout() {
                   <div><b>{t.name}</b><span>{t.text}</span></div>
                 </label>
               ))}
+              <details className="tier-list" open={!!chosenTier || undefined}>
+                <summary>Or fund something specific</summary>
+                {givingTiers.map(x => (
+                  <label className="choice" key={x.name}>
+                    <input type="radio" name="contrib" checked={chosenTier?.name === x.name} onChange={() => choose("tier:" + x.name)} />
+                    <div><b>{x.item}</b><span>{x.impact}</span></div>
+                    <em>{money(x.amount)}{x.min ? "+" : ""}</em>
+                  </label>
+                ))}
+              </details>
             </fieldset>
             <div className="seg" role="group" aria-label="Gift frequency">
               {(Object.keys(frequencies) as Freq[]).map(k => (
