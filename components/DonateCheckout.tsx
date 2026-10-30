@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { palette, useSite } from "./Providers";
 import { ConfettiButton } from "./Actions";
-import { ADD_MORE, CHECKOUT, GivingLines, openGivingList } from "./CartButton";
+import { ADD_MORE, CHECKOUT, openGivingList } from "./CartButton";
 import { getAll, insert, money, now } from "@/lib/store";
 import { useUser } from "@/lib/auth";
 import { addToCart, cartItems, clearCart, dedicationLine, describe, MAX_QTY, occasions, purposes, repeats, totals, useCart, type CartItem, type Purpose } from "@/lib/cart";
@@ -158,7 +158,7 @@ export default function DonateCheckout() {
     addToCart({ type: type.slug, ...(chosenTier && { tier: chosenTier.name }), qty: fixed ? qty : 1, amount, freq, purpose, ...(purpose === "general" ? blankDedication : ded) });
     say(`Added ${money(amount)} to your giving list`);
     resetBuilder();
-    setTimeout(() => document.getElementById("review")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    openGivingList();
   }
 
   function fill(num: string) {
@@ -263,12 +263,9 @@ export default function DonateCheckout() {
         {step === 1 && (
           <section>
             {cart.length > 0 && (
-              <div className="review" id="review">
-                <h3>🎁 Your giving list · {cartCount}</h3>
-                <GivingLines />
-                <button className="btn blue pay" type="button" onClick={() => setStep(2)}>Continue to payment · {money(sum.today)}</button>
-                <p className="hint">Or add another gift below, from the pillars or a giving tier.</p>
-              </div>
+              <button type="button" className="cart-strip" onClick={openGivingList}>
+                <span>🎁 Your giving list: <b>{cartCount}</b> · {money(sum.today)}</span><span>Review →</span>
+              </button>
             )}
             <h2 className="dm-title" id="dm-title">Choose a gift</h2>
             <p className="dm-sub">Pick what your gift supports, set an amount, then add it to your giving list. Add as many gifts as you like and pay for them together.</p>
@@ -372,12 +369,12 @@ export default function DonateCheckout() {
 
         {step === 2 && (
           <section>
-            <button className="back" type="button" onClick={() => setStep(1)}>← Add another gift</button>
-            <div className="review">
-              <h3>Review your giving list</h3>
-              <GivingLines />
-              <p className="review-total"><span>Total today</span><b>{money(sum.today)}</b></p>
-              {(sum.monthly > 0 || sum.yearly > 0) && <p className="hint">Then {repeats(sum)}, until you cancel.</p>}
+            <button className="back" type="button" onClick={openGivingList}>← Edit giving list</button>
+            <div className="summary order">
+              <ul>
+                {cart.map(i => { const d = describe(i); return <li key={i.id}><span>{d.tierLabel || d.title}{i.freq !== "once" && ` (${frequencies[i.freq].adj})`}{d.dedication && <small>{d.dedication}</small>}</span><b>{d.price}</b></li>; })}
+              </ul>
+              <p><span>Total today</span><b>{money(sum.today)}</b></p>
             </div>
             <form onSubmit={submit} noValidate autoComplete="off">
               {alert && <p className="form-alert" role="alert">{alert}</p>}

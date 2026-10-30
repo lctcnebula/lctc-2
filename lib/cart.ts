@@ -23,8 +23,8 @@ export type Dedication = { who: string; why: string; note: string };
 export const dedicationLine = (p: Purpose, d: Dedication) =>
   p === "general" || !d.who.trim() ? "" : `I am donating ${purposes[p].phrase} ${d.who.trim()}${d.why.trim() ? " because of " + d.why.trim() : ""}.`;
 
-// `amount` is the line total (unit price × qty). A fixed tier has its own price; a pillar gift from the donate page carries `unit`.
-export type CartItem = { id: string; type: string; tier?: string; unit?: number; qty: number; amount: number; freq: Freq; purpose: Purpose } & Dedication;
+// `amount` is the line total (tier price × qty for a fixed tier).
+export type CartItem = { id: string; type: string; tier?: string; qty: number; amount: number; freq: Freq; purpose: Purpose } & Dedication;
 
 export const MAX_QTY = 20;
 const KEY = "lctc-cart";
@@ -54,25 +54,24 @@ export const useCart = () => useSyncExternalStore(subscribe, read, () => empty);
 export const cartItems = () => read();
 
 export const tierOf = (i: Pick<CartItem, "tier">) => givingTiers.find(t => t.name === i.tier);
-// The price of one, for lines the donor can change the quantity of.
-const unitOf = (i: Pick<CartItem, "tier" | "unit">) => { const t = tierOf(i); return t ? (t.min ? undefined : t.amount) : i.unit; };
+const fixedTier = (i: Pick<CartItem, "tier">) => { const t = tierOf(i); return t && !t.min ? t : undefined; };
 
-// The same fixed-price gift, same frequency and no dedication just bumps the quantity.
+// The same fixed-price tier, same frequency and no dedication just bumps the quantity.
 export function addToCart(item: Omit<CartItem, "id">) {
-  const items = read(), unit = unitOf(item);
-  const same = unit && item.purpose === "general" && items.find(x => x.type === item.type && x.tier === item.tier && unitOf(x) === unit && x.freq === item.freq && x.purpose === "general");
-  if (same && unit) {
+  const items = read(), t = fixedTier(item);
+  const same = t && item.purpose === "general" && items.find(x => x.tier === item.tier && x.freq === item.freq && x.purpose === "general");
+  if (same && t) {
     const qty = Math.min(MAX_QTY, same.qty + item.qty);
-    return write(items.map(x => x === same ? { ...x, qty, amount: unit * qty } : x));
+    return write(items.map(x => x === same ? { ...x, qty, amount: t.amount * qty } : x));
   }
   write([...items, { ...item, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6) }]);
 }
 export function setQty(id: string, n: number) {
   write(read().map(x => {
-    const unit = x.id === id && unitOf(x);
-    if (!unit) return x;
+    const t = x.id === id && fixedTier(x);
+    if (!t) return x;
     const qty = Math.min(MAX_QTY, Math.max(1, n));
-    return { ...x, qty, amount: unit * qty };
+    return { ...x, qty, amount: t.amount * qty };
   }));
 }
 export const removeFromCart = (id: string) => write(read().filter(x => x.id !== id));
@@ -86,8 +85,8 @@ export function describe(i: CartItem) {
     sub: t ? `${t.name} · ${type.name}` : type.text,
     icon: type.icon,
     tierLabel: t && (!t.min && i.qty > 1 ? `${t.name} × ${i.qty}` : t.name),
-    fixed: !!unitOf(i),
-    unit: unitOf(i),
+    fixed: !!t && !t.min,
+    unit: t?.amount,
     dedication: dedicationLine(i.purpose, i),
     price: money(i.amount) + frequencies[i.freq].per,
   };
