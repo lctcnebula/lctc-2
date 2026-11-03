@@ -75,6 +75,8 @@ export function setQty(id: string, n: number) {
   }));
 }
 export const removeFromCart = (id: string) => write(read().filter(x => x.id !== id));
+/** How often and who it's for are chosen once for the whole giving list, on the donate page's Review step. */
+export const updateAll = (patch: Partial<Omit<CartItem, "id" | "type" | "tier" | "qty" | "amount">>) => write(read().map(x => ({ ...x, ...patch })));
 export const clearCart = () => write([]);
 
 export function describe(i: CartItem) {

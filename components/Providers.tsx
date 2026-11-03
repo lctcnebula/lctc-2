@@ -58,9 +58,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     say("🎉 Here's to Lake County students!");
   }, [getConfetti, say]);
 
-  // Every new page opens at the top, instantly (no animated scroll from where you clicked).
+  // Every new page opens at the top, instantly (no animated scroll from where you clicked). A link with a #section
+  // (e.g. /get-involved#gifts) lands on that section, below the sticky header, once the page has laid out.
   useEffect(() => {
-    if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    if (!location.hash) { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); return; }
+    const t = setTimeout(() => { document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
+    return () => clearTimeout(t);
   }, [pathname]);
 
   // Reveal-on-scroll for any element with .reveal, including ones rendered later from stored data.

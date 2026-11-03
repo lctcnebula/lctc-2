@@ -7,11 +7,9 @@ import { addToCart, describe, MAX_QTY, removeFromCart, repeats, setQty, totals, 
 import { givingTiers, money } from "@/lib/content";
 import { frequencies } from "@/lib/seed";
 
-// The giving list (the donation cart) is a sidebar that slides in from the right on every page. Anything can open it
-// with openGivingList(); the donate page listens for CHECKOUT / ADD_MORE to switch step without reloading.
+// The giving list (the donation cart) is a sidebar that slides in from the right on every page except /donate, where the
+// list is already on the page (openGivingList() scrolls to it there). Anything can open it with openGivingList().
 const OPEN = "lctc:open-giving-list";
-export const CHECKOUT = "lctc:checkout";
-export const ADD_MORE = "lctc:add-more";
 export const openGivingList = () => dispatchEvent(new Event(OPEN));
 
 export function HeaderCart() {
@@ -33,10 +31,13 @@ export function GivingSidebar() {
   const opener = useRef<Element | null>(null);
 
   useEffect(() => {
-    const show = () => { opener.current = document.activeElement; setOpen(true); };
+    const show = () => {
+      if (pathname === "/donate") { document.querySelector(".donate-card")?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      opener.current = document.activeElement; setOpen(true);
+    };
     addEventListener(OPEN, show);
     return () => removeEventListener(OPEN, show);
-  }, []);
+  }, [pathname]);
   useEffect(() => setOpen(false), [pathname]);
 
   // While open: Esc closes, the page behind doesn't scroll, focus starts on the close button and goes back after.
@@ -53,12 +54,7 @@ export function GivingSidebar() {
     };
   }, [open]);
 
-  // On /donate the checkout just changes step; anywhere else it goes there first.
-  const go = (event: string, url: string) => {
-    setOpen(false);
-    if (pathname === "/donate") dispatchEvent(new Event(event));
-    else router.push(url);
-  };
+  const go = (url: string) => { setOpen(false); router.push(url); };
 
   const sum = totals(cart);
   return (
@@ -74,46 +70,20 @@ export function GivingSidebar() {
         </header>
 
         {cart.length ? <>
-          <ul className="cart-lines">
-            {cart.map(i => {
-              const d = describe(i);
-              return (
-                <li key={i.id}>
-                  <i aria-hidden="true">{d.icon}</i>
-                  <div className="cart-info">
-                    <b>{d.title}</b>
-                    <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : "Any amount"}</span>
-                    {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
-                    {d.fixed && (
-                      <div className="qty sm" role="group" aria-label={`How many: ${d.title}`}>
-                        <button type="button" aria-label="One fewer" disabled={i.qty <= 1} onClick={() => setQty(i.id, i.qty - 1)}>−</button>
-                        <output aria-live="polite">{i.qty}</output>
-                        <button type="button" aria-label="One more" disabled={i.qty >= MAX_QTY} onClick={() => setQty(i.id, i.qty + 1)}>+</button>
-                        <small>× {money(d.unit!)}</small>
-                      </div>
-                    )}
-                    <div className="cart-price">
-                      <b>{d.price}</b>
-                      <button type="button" className="link-btn" onClick={() => { removeFromCart(i.id); say(`Removed ${d.title.toLowerCase()} from your giving list`); }}>Remove</button>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <GivingLines />
           <footer>
             <dl className="cart-total">
               <div><dt>Total today</dt><dd>{money(sum.today)}</dd></div>
               {(sum.monthly > 0 || sum.yearly > 0) && <p className="hint">Then {repeats(sum)}, until you cancel.</p>}
             </dl>
-            <button className="btn blue pay" type="button" onClick={() => go(CHECKOUT, "/donate?pay=1")}>Continue to payment · {money(sum.today)}</button>
-            <button className="btn line pay" type="button" onClick={() => go(ADD_MORE, "/donate")}>+ Add another gift</button>
+            <button className="btn blue pay" type="button" onClick={() => go("/donate")}>Go to donate · {money(sum.today)}</button>
+            <button className="btn line pay" type="button" onClick={() => go("/get-involved#gifts")}>+ Add another gift</button>
           </footer>
         </> : (
           <div className="cart-empty">
             <p>🎁 Your giving list is empty.</p>
-            <p className="hint">Choose a scholarship, a toolkit or any amount, and it&apos;ll wait here until you&apos;re ready to give.</p>
-            <button className="btn blue" type="button" onClick={() => go(ADD_MORE, "/donate")}>Choose a gift</button>
+            <p className="hint">Choose a scholarship, a toolkit or another gift, and it&apos;ll wait here until you&apos;re ready to give.</p>
+            <button className="btn blue" type="button" onClick={() => go("/get-involved#gifts")}>Choose a gift</button>
           </div>
         )}
       </aside>
@@ -122,15 +92,51 @@ export function GivingSidebar() {
 }
 
 // "Add to giving list" for a giving tier, used on the pricing page.
-export function AddTierToCart({ name, className = "btn line" }: { name: string; className?: string }) {
+export function AddTierToCart({ name, qty = 1, className = "btn line" }: { name: string; qty?: number; className?: string }) {
   const { say } = useSite();
   const t = givingTiers.find(x => x.name === name);
   if (!t) return null;
+  const n = t.min ? 1 : qty;
   return (
     <button type="button" className={className} onClick={() => {
-      addToCart({ type: t.type, tier: t.name, qty: 1, amount: t.amount, freq: "once", purpose: "general", who: "", why: "", note: "" });
-      say(`Added ${t.item.toLowerCase()} to your giving list`);
+      addToCart({ type: t.type, tier: t.name, qty: n, amount: t.amount * n, freq: "once", purpose: "general", who: "", why: "", note: "" });
+      say(`Added ${n > 1 ? n + " × " : ""}${t.item.toLowerCase()} to your giving list`);
       openGivingList();
     }}>Add to giving list</button>
+  );
+}
+
+/** The gifts on the giving list, each with how many, its price and Remove. Used by the sidebar and the donate page's Review step. */
+export function GivingLines() {
+  const cart = useCart();
+  const { say } = useSite();
+  return (
+    <ul className="cart-lines">
+      {cart.map(i => {
+        const d = describe(i);
+        return (
+          <li key={i.id}>
+            <i aria-hidden="true">{d.icon}</i>
+            <div className="cart-info">
+              <b>{d.title}</b>
+              <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : "Where it’s needed most"}</span>
+              {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
+              {d.fixed && (
+                <div className="qty sm" role="group" aria-label={`How many: ${d.title}`}>
+                  <button type="button" aria-label="One fewer" disabled={i.qty <= 1} onClick={() => setQty(i.id, i.qty - 1)}>−</button>
+                  <output aria-live="polite">{i.qty}</output>
+                  <button type="button" aria-label="One more" disabled={i.qty >= MAX_QTY} onClick={() => setQty(i.id, i.qty + 1)}>+</button>
+                  <small>× {money(d.unit!)}</small>
+                </div>
+              )}
+              <div className="cart-price">
+                <b>{d.price}</b>
+                <button type="button" className="link-btn" onClick={() => { removeFromCart(i.id); say(`Removed ${d.title.toLowerCase()} from your giving list`); }}>Remove</button>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

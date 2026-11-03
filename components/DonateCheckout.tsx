@@ -1,20 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { palette, useSite } from "./Providers";
 import { ConfettiButton } from "./Actions";
-import { ADD_MORE, CHECKOUT, openGivingList } from "./CartButton";
-import { getAll, insert, money, now } from "@/lib/store";
+import { GivingLines } from "./CartButton";
+import { insert, money, now } from "@/lib/store";
 import { useUser } from "@/lib/auth";
-import { addToCart, cartItems, clearCart, dedicationLine, describe, MAX_QTY, occasions, purposes, repeats, totals, useCart, type CartItem, type Purpose } from "@/lib/cart";
+import { addToCart, cartItems, clearCart, updateAll, dedicationLine, describe, MAX_QTY, occasions, purposes, repeats, totals, useCart, type CartItem, type Purpose } from "@/lib/cart";
 import { donationTypes, findDonationType, givingTiers, tiersFor } from "@/lib/content";
 import { frequencies, type Freq } from "@/lib/seed";
 
-// Demo checkout, shop style: build a gift, add it to the giving list (the cart), add more, then pay once. Nothing is charged, but each line
+// Demo checkout for the giving list (the cart), which donors fill from Get Involved. Nothing is charged, but each line
 // is recorded in Admin → Donations (all under one receipt number). Swap the submit handler for a hosted payment page
 // (Stripe Checkout, PayPal...) to take real gifts. No upper limit on gift size.
 
 export const funds = donationTypes.map(t => t.name);
+const general = donationTypes[0];
 const TEST: Record<string, "ok" | "decline"> = { "4242424242424242": "ok", "5555555555554444": "ok", "378282246310005": "ok", "6011111111111117": "ok", "4000000000000002": "decline" };
 const brandNames = { visa: "Visa", mastercard: "Mastercard", amex: "Amex", discover: "Discover" } as const;
 type Brand = keyof typeof brandNames | "";
@@ -35,20 +37,14 @@ type Fields = typeof blank;
 const blankDedication = { who: "", why: "", note: "" };
 type Receipt = { first: string; id: string; items: CartItem[]; card: string; date: string; email: string; keep: boolean };
 
-// Steps: 1 build a gift → 2 payment → 3 thank-you. Reviewing the giving list happens in the sidebar (GivingSidebar).
+// Steps: 1 review the giving list, how often and who it's for → 2 payment → 3 thank-you. Gifts are chosen on Get Involved.
 // Donors see "giving list", never "cart".
 export default function DonateCheckout() {
   const top = useRef<HTMLDivElement>(null);
-  const { getConfetti, say } = useSite();
+  const { getConfetti } = useSite();
   const cart = useCart();
   const [step, setStep] = useState(1);
-  const [type, setType] = useState(donationTypes[0]);
-  const [amount, setAmount] = useState(type.default);
-  const [tier, setTier] = useState("");
-  const [qty, setQty] = useState(1);
-  const [custom, setCustom] = useState("");
   const [freq, setFreq] = useState<Freq>("once");
-  const [amountErr, setAmountErr] = useState("");
   const [purpose, setPurpose] = useState<Purpose>("general");
   const [ded, setDed] = useState(blankDedication);
   const [dedErr, setDedErr] = useState("");
@@ -65,67 +61,30 @@ export default function DonateCheckout() {
     if (user) setF(p => ({ ...p, name: p.name || user.name, email: p.email || user.email }));
   }, [user]);
 
-  // Links elsewhere preselect the gift: /donate?type=scholarships&amount=1000&freq=monthly (or yearly), or
-  // /donate?tier=The%20Toolkit&qty=2 for a giving tier; &other=1 jumps to the "any other amount" box. ?fund=Scholarships (the type's name) still works for older links.
-  // /donate?pay=1 (the sidebar's "Continue to payment" from another page) goes straight to payment; ?cart=1 opens the sidebar.
+  // Links elsewhere add a gift to the list: /donate?tier=The%20Toolkit&qty=2&freq=monthly (or yearly). ?type=scholarships
+  // (or older ?fund=Scholarships) adds that pillar's first giving opportunity, ?type=general a general donation.
   useEffect(() => {
     const q = new URLSearchParams(location.search);
-    if (q.get("pay")) setStep(2);
-    if (q.get("cart")) setTimeout(openGivingList, 300);
-    const gt = givingTiers.find(x => x.name === q.get("tier"));
-    const t = findDonationType(gt?.type ?? q.get("type") ?? q.get("fund"));
-    if (t) pickType(t);
     const fq = q.get("freq");
     if (fq === "monthly" || fq === "yearly") setFreq(fq);
-    if (gt && t) return pickTier(gt.name, t, parseInt(q.get("qty") ?? "1"));
-    const n = parseFloat(q.get("amount") ?? "");
-    if (n >= 5) pickAmount(n, t ?? donationTypes[0]);
-    if (q.get("other")) setTimeout(() => { const el = document.getElementById("d-custom"); el?.scrollIntoView({ block: "center" }); el?.focus(); }, 300);
+    const t = findDonationType(q.get("type") ?? q.get("fund"));
+    const gt = givingTiers.find(x => x.name === q.get("tier")) ?? (t && t.slug !== general.slug ? tiersFor(t.slug)[0] : undefined);
+    const n = gt?.min ? 1 : Math.min(MAX_QTY, Math.max(1, parseInt(q.get("qty") ?? "1") || 1));
+    if (gt) addToCart({ type: gt.type, tier: gt.name, qty: n, amount: gt.amount * n, freq: "once", purpose: "general", ...blankDedication });
+    else if (t?.slug === general.slug) addToCart({ type: general.slug, qty: 1, amount: general.default, freq: "once", purpose: "general", ...blankDedication });
+    // The gift is on the list now, so reloading the page shouldn't add it again.
+    if (gt || t) history.replaceState(null, "", location.pathname);
   }, []);
 
-  // The sidebar's buttons, clicked while already on this page.
-  useEffect(() => {
-    const pay = () => setStep(2), more = () => setStep(1);
-    addEventListener(CHECKOUT, pay); addEventListener(ADD_MORE, more);
-    return () => { removeEventListener(CHECKOUT, pay); removeEventListener(ADD_MORE, more); };
-  }, []);
   // Paying needs something on the list (e.g. everything removed in the sidebar mid-payment).
   useEffect(() => { if (step === 2 && !cartItems().length) setStep(1); }, [step, cart.length]);
-
-  // Switching type swaps in that type's presets and tiers, so the old amount (preset or typed) is replaced by its default.
-  function pickType(t: typeof type) {
-    setType(t); setTier(""); setQty(1); setAmount(t.default); setCustom(""); setAmountErr("");
-    if (t.slug === "tribute") setPurpose(p => p === "general" ? "honor" : p);
-  }
-
-  // A giving tier locks the price: amount = price × how many. A `min` tier starts at its price and can go higher.
-  function pickTier(name: string, t = type, n = 1) {
-    const gt = tiersFor(t.slug).find(x => x.name === name);
-    const q = Math.min(MAX_QTY, Math.max(1, n || 1));
-    setTier(gt ? gt.name : ""); setQty(q); setCustom(""); setAmountErr("");
-    setAmount(gt ? gt.amount * (gt.min ? 1 : q) : t.default);
-  }
-  // One list holds both: a type ("general") gives presets + any amount, a giving tier ("tier:The Toolkit") a fixed price.
-  function choose(v: string) {
-    const gt = givingTiers.find(x => "tier:" + x.name === v);
-    const t = findDonationType(gt ? gt.type : v);
-    if (!t) return;
-    pickType(t);
-    if (gt) pickTier(gt.name, t);
-  }
-  function changeQty(n: number) {
-    if (!chosenTier) return;
-    const q = Math.min(MAX_QTY, Math.max(1, n));
-    setQty(q); setAmount(chosenTier.amount * q);
-  }
-
-  // An amount that isn't one of the type's presets goes in the "other amount" box so it stays visible.
-  function pickAmount(n: number, t = type) {
-    setAmount(n); setAmountErr("");
-    setCustom(t.presets.includes(n) ? "" : String(n));
-  }
-  const tiers = tiersFor(type.slug), chosenTier = tiers.find(x => x.name === tier);
-  const fixed = chosenTier && !chosenTier.min;
+  // A list saved earlier keeps the frequency and dedication chosen for it.
+  useEffect(() => {
+    const [i] = cartItems();
+    if (!i) return;
+    setFreq(f => new URLSearchParams(location.search).get("freq") ? f : i.freq);
+    if (i.purpose !== "general") { setPurpose(i.purpose); setDed({ who: i.who, why: i.why, note: i.note }); }
+  }, []);
 
   const first = useRef(true);
   useEffect(() => {
@@ -135,13 +94,9 @@ export default function DonateCheckout() {
     if (step === 2) setTimeout(() => document.getElementById("d-name")?.focus(), 50);
   }, [step]);
 
-  // After adding to the giving list (or paying) the builder starts fresh on the same type.
-  function resetBuilder() {
-    setPurpose("general"); setDed(blankDedication); setDedErr("");
-    pickType(type); setFreq("once");
-  }
   function giveAgain() {
-    resetBuilder(); setKeep(true);
+    setKeep(true);
+    setFreq("once"); setPurpose("general"); setDed(blankDedication); setDedErr("");
     setF(p => ({ ...blank, name: p.name, email: p.email })); setErrs({}); setAlert(""); setReceipt(null);
     setStep(1);
   }
@@ -151,14 +106,11 @@ export default function DonateCheckout() {
   const brand = brandOf(f.card.replace(/\D/g, ""));
   const set = (k: keyof Fields, v: string) => setF(p => ({ ...p, [k]: v }));
 
-  function add() {
-    const least = chosenTier?.min ? chosenTier.amount : 5;
-    if (!(amount >= least)) { setAmountErr(`Please enter at least ${money(least)}.`); document.getElementById("d-custom")?.focus(); return; }
+  // How often and who it's for apply to every gift on the list.
+  function toPayment() {
     if (purpose !== "general" && ded.who.trim().length < 2) { setDedErr("Tell us who this gift is for."); document.getElementById("d-who")?.focus(); return; }
-    addToCart({ type: type.slug, ...(chosenTier && { tier: chosenTier.name }), qty: fixed ? qty : 1, amount, freq, purpose, ...(purpose === "general" ? blankDedication : ded) });
-    say(`Added ${money(amount)} to your giving list`);
-    resetBuilder();
-    openGivingList();
+    updateAll({ freq, purpose, ...(purpose === "general" ? blankDedication : ded) });
+    setStep(2);
   }
 
   function fill(num: string) {
@@ -207,15 +159,17 @@ export default function DonateCheckout() {
       const b = brandOf(card) as keyof typeof brandNames;
       const id = "LCTC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const name = f.name.trim(), email = f.email.trim(), paidWith = `${brandNames[b]} ending ${card.slice(-4)}`;
-      for (const i of items) {
-        const d = describe(i);
-        insert("donations", {
-          receipt: id, name, email, amount: i.amount, freq: i.freq, fund: d.type.name, ...(d.tierLabel && { tier: d.tierLabel }),
-          ...(d.dedication && { dedication: d.dedication, ...(i.note.trim() && { note: i.note.trim() }) }), keepInTouch: keep,
-          card: paidWith, createdAt: now(),
-        });
-      }
-      if (keep && !getAll("subscribers").some(s => s.email.toLowerCase() === email.toLowerCase())) insert("subscribers", { email, name, createdAt: now() });
+      try {
+        await Promise.all(items.map(i => {
+          const d = describe(i);
+          return insert("donations", {
+            receipt: id, name, email, amount: i.amount, freq: i.freq, fund: d.type.name, ...(d.tierLabel && { tier: d.tierLabel }),
+            ...(d.dedication && { dedication: d.dedication, ...(i.note.trim() && { note: i.note.trim() }) }), keepInTouch: keep,
+            card: paidWith, createdAt: now(),
+          });
+        }));
+        if (keep) await insert("subscribers", { email, name, createdAt: now() });
+      } catch (x) { setAlert((x as Error).message); return; }
       setReceipt({
         first: name.split(/\s+/)[0], id, items, card: paidWith, email, keep,
         date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
@@ -247,8 +201,6 @@ export default function DonateCheckout() {
     </div>
   );
 
-  const cartCount = `${cart.length} ${cart.length === 1 ? "gift" : "gifts"}`;
-
   return (
     <div className="form-card donate-card" ref={top}>
       <div>
@@ -257,76 +209,21 @@ export default function DonateCheckout() {
           <span><b>Demo mode.</b> No card is charged. Completed gifts show up in the admin dashboard. Pay with test card <code title="Click to fill" onClick={() => fill("4242424242424242")}>4242 4242 4242 4242</code> or <code title="Click to fill" onClick={() => fill("5555555555554444")}>5555 5555 5555 4444</code>, any future date and any CVC. <code title="Click to fill" onClick={() => fill("4000000000000002")}>4000 0000 0000 0002</code> shows a decline.</span>
         </p>
         <ol className="steps" aria-label="Checkout steps">
-          {["Choose", "Pay", "Done"].map((l, n) => <li key={l} className={n + 1 <= step ? "on" : ""} aria-current={n + 1 === step ? "step" : undefined}><span>{l}</span></li>)}
+          {["Review", "Pay", "Done"].map((l, n) => <li key={l} className={n + 1 <= step ? "on" : ""} aria-current={n + 1 === step ? "step" : undefined}><span>{l}</span></li>)}
         </ol>
 
-        {step === 1 && (
-          <section>
-            {cart.length > 0 && (
-              <button type="button" className="cart-strip" onClick={openGivingList}>
-                <span>🎁 Your giving list: <b>{cartCount}</b> · {money(sum.today)}</span><span>Review →</span>
-              </button>
-            )}
-            <h2 className="dm-title" id="dm-title">Choose a gift</h2>
-            <p className="dm-sub">Pick what your gift supports, set an amount, then add it to your giving list. Add as many gifts as you like and pay for them together.</p>
-            <fieldset className="contribs">
-              <legend>Your contribution</legend>
-              {donationTypes.map(t => (
-                <label className="choice" key={t.slug}>
-                  <input type="radio" name="contrib" checked={!chosenTier && type.slug === t.slug} onChange={() => choose(t.slug)} />
-                  <i aria-hidden="true">{t.icon}</i>
-                  <div><b>{t.name}</b><span>{t.text}</span></div>
-                </label>
-              ))}
-              <details className="tier-list" open={!!chosenTier || undefined}>
-                <summary>Or fund something specific</summary>
-                {givingTiers.map(x => (
-                  <label className="choice" key={x.name}>
-                    <input type="radio" name="contrib" checked={chosenTier?.name === x.name} onChange={() => choose("tier:" + x.name)} />
-                    <div><b>{x.item}</b><span>{x.impact}</span></div>
-                    <em>{money(x.amount)}{x.min ? "+" : ""}</em>
-                  </label>
-                ))}
-              </details>
-            </fieldset>
+        {step === 1 && cart.length > 0 && (
+          <section className="gift-review">
+            <h2 className="dm-title" id="dm-title">Review your giving list</h2>
+            <p className="dm-sub">{cart.length} {cart.length === 1 ? "gift" : "gifts"} for Lake County Tech Campus students. Change how many or remove anything, choose how often, and tell us who it&apos;s for.</p>
+            <GivingLines />
+
+            <h3 className="dm-h3">How often?</h3>
             <div className="seg" role="group" aria-label="Gift frequency">
               {(Object.keys(frequencies) as Freq[]).map(k => (
-                <button key={k} type="button" aria-pressed={freq === k} onClick={() => setFreq(k)}>{frequencies[k].label}</button>
+                <button key={k} type="button" aria-pressed={freq === k} onClick={() => { setFreq(k); updateAll({ freq: k }); }}>{frequencies[k].label}</button>
               ))}
             </div>
-            {fixed ? (
-              <div className="fixed-gift">
-                <div>
-                  <b>{chosenTier.item}</b>
-                  <span>{money(chosenTier.amount)} each</span>
-                </div>
-                <div className="qty" role="group" aria-label="How many">
-                  <button type="button" aria-label="One fewer" disabled={qty <= 1} onClick={() => changeQty(qty - 1)}>−</button>
-                  <output aria-live="polite">{qty}</output>
-                  <button type="button" aria-label="One more" disabled={qty >= MAX_QTY} onClick={() => changeQty(qty + 1)}>+</button>
-                </div>
-                <p className="fixed-total">Total <b>{money(amount)}</b></p>
-              </div>
-            ) : <>
-            {!chosenTier && <div className="amounts" role="group" aria-label="Gift amount">
-              {type.presets.map(a => (
-                <button key={a} className="amt" type="button" aria-pressed={!custom && amount === a} onClick={() => pickAmount(a)}>{money(a)}</button>
-              ))}
-            </div>}
-            <div className="field custom">
-              <label htmlFor="d-custom" className="sr-only">Other amount</label>
-              <span aria-hidden="true">$</span>
-              <input id="d-custom" type="text" inputMode="decimal" placeholder={chosenTier ? `${money(chosenTier.amount)} or more` : "Any other amount"} autoComplete="off" value={custom}
-                onChange={e => {
-                  const v = e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1").replace(/(\.\d{2}).+/, "$1");
-                  setCustom(v); setAmountErr("");
-                  const n = parseFloat(v);
-                  if (n > 0) setAmount(n);
-                  else if (!v) setAmount(chosenTier ? chosenTier.amount : type.default);
-                }} />
-              <p className="err">{amountErr}</p>
-            </div>
-            </>}
 
             <h3 className="dm-h3">Who is this gift for?</h3>
             <fieldset>
@@ -363,13 +260,27 @@ export default function DonateCheckout() {
                 {dedication || <>I am donating {purposes[purpose].phrase} <u>their name</u> because of <u>the occasion</u>.</>}
               </blockquote>
             </>}
-            <button className="btn blue pay" type="button" onClick={add}>Add to giving list · {money(amount)}{frequencies[freq].per}</button>
+
+            <dl className="cart-total">
+              <div><dt>Total today</dt><dd>{money(sum.today)}</dd></div>
+              {(sum.monthly > 0 || sum.yearly > 0) && <p className="hint">Then {repeats(sum)}, until you cancel.</p>}
+            </dl>
+            <button className="btn blue pay" type="button" onClick={toPayment}>Continue to payment · {money(sum.today)}</button>
+            <Link className="btn line pay" href="/get-involved#gifts">Want to give more?</Link>
+          </section>
+        )}
+
+        {step === 1 && cart.length === 0 && (
+          <section className="cart-empty">
+            <h2 className="dm-title" id="dm-title">Your giving list is empty</h2>
+            <p className="dm-sub">Choose a scholarship, a toolkit or another gift on Get Involved, and it&apos;ll wait here until you&apos;re ready to give.</p>
+            <Link className="btn blue pay" href="/get-involved#gifts">Choose a gift</Link>
           </section>
         )}
 
         {step === 2 && (
           <section>
-            <button className="back" type="button" onClick={openGivingList}>← Edit giving list</button>
+            <button className="back" type="button" onClick={() => setStep(1)}>← Review giving list</button>
             <div className="summary order">
               <ul>
                 {cart.map(i => { const d = describe(i); return <li key={i.id}><span>{d.tierLabel || d.title}{i.freq !== "once" && ` (${frequencies[i.freq].adj})`}{d.dedication && <small>{d.dedication}</small>}</span><b>{d.price}</b></li>; })}
