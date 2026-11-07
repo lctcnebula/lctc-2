@@ -39,7 +39,10 @@ const url = (k: keyof DB) => k === "settings" ? "/api/settings" : `/api/data/${k
 export async function refresh<K extends keyof DB>(k: K) {
   if (loading.has(k)) return;
   loading.add(k);
-  try { cache[k] = await api<DB[K]>(url(k)); emit(); }
+  try {
+    const next = await api<DB[K]>(url(k));
+    if (JSON.stringify(next) !== JSON.stringify(cache[k])) { cache[k] = next; emit(); }
+  }
   catch { /* keep what we have */ }
   finally { loading.delete(k); }
 }
@@ -49,9 +52,26 @@ export function refreshAll() {
   (Object.keys(cache) as (keyof DB)[]).forEach(k => { delete cache[k]; void refresh(k); });
 }
 
+// Open pages stay current: every few seconds (while the tab is visible), and whenever the window regains focus,
+// the collections this page uses are fetched again. That is how the admin dashboard sees new submissions.
+let polling = false;
+function startPolling() {
+  if (polling || typeof window === "undefined") return;
+  polling = true;
+  const again = () => { if (document.visibilityState === "visible") (Object.keys(cache) as (keyof DB)[]).forEach(k => void refresh(k)); };
+  setInterval(again, 10000);
+  addEventListener("focus", again);
+}
+
 function subscribe(l: () => void) {
+  startPolling();
   listeners.add(l);
   return () => { listeners.delete(l); };
+}
+
+/** False until a collection has arrived from the server (so lists can say "Loading…" rather than "Nothing yet"). */
+export function useLoaded(k: keyof DB) {
+  return useSyncExternalStore(subscribe, () => k in cache, () => false);
 }
 
 /** Live view of a collection (or settings). */

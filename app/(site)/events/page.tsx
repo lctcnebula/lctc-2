@@ -14,13 +14,13 @@ export default function EventsPage() {
       </PageHero>
       <section className="block tint">
         <div className="wrap">
-          <div className="head">
+          <div className="head" id="upcoming" style={{ scrollMarginTop: 110 }}>
             <div>
               <p className="kicker">Upcoming</p>
               <h2>Coming up</h2>
             </div>
           </div>
-          <UpcomingEvents />
+          <UpcomingEvents pageSize={9} />
           <div className="cta" style={{ marginTop: "clamp(56px, 8vw, 96px)" }}>
             <div>
               <h2>Never miss an event</h2>

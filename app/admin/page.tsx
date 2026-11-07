@@ -5,6 +5,7 @@ import { can, roleLabels, useUser, type Section } from "@/lib/auth";
 import { money, upcoming, useData } from "@/lib/store";
 import { frequencies } from "@/lib/seed";
 import { fmtDate, fmtDateTime } from "@/components/admin/Manager";
+import { groupSubmissions } from "@/components/admin/DonationGroups";
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -21,11 +22,12 @@ export default function Dashboard() {
 
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
   const thisMonth = donations.filter(d => new Date(d.createdAt) >= monthStart);
+  const subs = groupSubmissions(donations);
   const latest = [...reports].sort((a, b) => b.year.localeCompare(a.year))[0];
 
   const cards: { s: Section; href: string; label: string; value: string | number; sub: string }[] = [
-    { s: "donations", href: "/admin/donations", label: "Donations", value: money(donations.reduce((n, d) => n + d.amount, 0)), sub: `${donations.length} gifts · ${money(thisMonth.reduce((n, d) => n + d.amount, 0))} this month` },
-    { s: "applications", href: "/admin/applications", label: "Grant applications", value: applications.length, sub: `${applications.filter(a => a.status === "New").length} new` },
+    { s: "donations", href: "/admin/donations", label: "Donations", value: money(donations.reduce((n, d) => n + d.amount, 0)), sub: `${subs.length} donations from ${new Set(subs.map(x => x.email.toLowerCase())).size} donors · ${money(thisMonth.reduce((n, d) => n + d.amount, 0))} this month` },
+    { s: "applications", href: "/admin/applications", label: "Aid applications", value: applications.length, sub: `${applications.filter(a => a.status === "New").length} new` },
     { s: "messages", href: "/admin/messages", label: "Messages", value: messages.length, sub: `${messages.filter(m => m.status === "New").length} new` },
     { s: "rsvps", href: "/admin/rsvps", label: "RSVPs", value: rsvps.reduce((n, r) => n + 1 + r.guests, 0), sub: (n => `people across ${n} event${n === 1 ? "" : "s"}`)(new Set(rsvps.map(r => r.eventId)).size) },
     { s: "subscribers", href: "/admin/subscribers", label: "Subscribers", value: subscribers.length, sub: "event updates" },
@@ -35,7 +37,7 @@ export default function Dashboard() {
 
   type Act = { at: string; s: Section; href: string; text: React.ReactNode };
   const activity: Act[] = [
-    ...donations.map(d => ({ at: d.createdAt, s: "donations" as const, href: "/admin/donations", text: <><b>{d.name}</b> gave {money(d.amount)}{frequencies[d.freq]?.short} to {d.fund}</> })),
+    ...subs.map(d => ({ at: d.createdAt, s: "donations" as const, href: "/admin/donations", text: <><b>{d.name}</b> gave {money(d.today)}{d.lines.length > 1 ? ` (${d.lines.length} gifts)` : `${frequencies[d.lines[0].freq]?.short ?? ""} to ${d.lines[0].fund}`}</> })),
     ...applications.map(a => ({ at: a.submittedAt, s: "applications" as const, href: "/admin/applications", text: <><b>{a.firstName} {a.lastName}</b> applied for aid</> })),
     ...messages.map(m => ({ at: m.createdAt, s: "messages" as const, href: "/admin/messages", text: <><b>{m.name}</b> sent a message: {m.topic}</> })),
     ...rsvps.map(r => ({ at: r.createdAt, s: "rsvps" as const, href: `/admin/rsvps?event=${r.eventId}`, text: <><b>{r.name}</b> RSVP&apos;d to {events.find(e => e.id === r.eventId)?.title ?? "an event"}</> })),

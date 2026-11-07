@@ -24,7 +24,19 @@ npm run db:setup -- --reset  # wipes content and submissions, reloads the starti
 
 A super admin can also reset from Admin → Settings.
 
+## Recent additions
+
+- **Seasons:** the header shows the season (Nov–Feb: Christmas lights and a Santa hat on the logo; spring flowers from March; summer from June; fall leaves and a squirrel from September), and snow/leaves/petals fall over the top banner of each page for ~30 seconds. A pill above the ⚡ Autofill button switches season. Everything else on the site keeps its normal colours. Code: `components/Seasons.tsx`, `app/seasons.css`.
+- **Apply for aid:** the first step asks "student or teacher?" and the questions change to match. Answers are typed (with suggestions), not picked from dropdowns.
+- **Admin → Donations:** *Submissions* (one row per checkout with its receipt), *Donors* (everyone who gave, with every donation and receipt) and *Gift lines* (one row per gift; record checks here).
+- **Admin → Yearly reports:** "Fill from live data" totals the current school year (July 1 to June 30) from donations and approved applications.
+- **Events** are paginated (9 upcoming / 8 past per page). Open pages refresh their data every 10 seconds, so the dashboard shows new submissions without reloading.
+- New starting content (extra events) reaches an existing database with `npm run db:setup`, which only adds what's missing.
+
 ## Admin dashboard
+
+Admin → Donations has three views: **Submissions** (one row per checkout, all its gifts and the receipt), **Donors** (everyone who gave, with every donation and receipt) and **Gift lines** (each gift on its own line, for recording checks and offline gifts).
+
 
 Sign in at `/login`. Demo accounts (password `demo1234` for all):
 
@@ -60,7 +72,7 @@ Import the GitHub repo in Vercel and connect the Neon database to the project (S
 | `/` | Home: hero slideshow, stats, member-school ticker (once schools are added in Settings), student aid, programs, events, donate |
 | `/programs` | All programs with category filters |
 | `/programs/[slug]` | One page per program, generated from the data |
-| `/apply` | Four-step student grant application, plus outside scholarships |
+| `/apply` | Aid application for students or teachers (the first step asks which), plus outside scholarships |
 
 ## Editing content
 
@@ -71,8 +83,9 @@ Day-to-day content is edited in the admin dashboard. Starting data is in `lib/se
 
 
 - The form checks every field before it can be finished (`lib/application.ts`).
-- Progress saves on the student's device, so they can come back later.
-- On submit it goes to Admin → Grant applications, and the student gets a confirmation number plus a download/print copy.
+- Students and teachers get different questions (teachers: position, program taught, classroom requests, a supervisor reference).
+- Progress saves on the applicant's device, so they can come back later.
+- On submit it goes to Admin → Aid applications, and the applicant gets a confirmation number plus a download/print copy.
 
 ## Donations
 

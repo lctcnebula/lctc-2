@@ -10,7 +10,7 @@ export default function RsvpsAdmin() {
   const ev = (id: string) => events.find(e => e.id === id);
   const filters = [
     { label: "All events", test: () => true },
-    ...events.filter(e => e.rsvpOpen || e.id === eventId).map(e => ({ label: e.title, test: (r: Row) => r.eventId === e.id })),
+    ...events.filter(e => e.rsvpOpen || e.id === eventId).map(e => ({ label: `${e.title} · ${fmtDate(e.date)}`, test: (r: Row) => r.eventId === e.id })),
   ];
   const where = eventId ? (r: Row) => r.eventId === eventId : undefined;
   const focus = eventId ? ev(eventId) : undefined;

@@ -4,6 +4,8 @@ import PageHero from "@/components/PageHero";
 import WaysToHelp from "@/components/WaysToHelp";
 import GiveCta from "@/components/GiveCta";
 import GiftCard from "@/components/GiftCard";
+import { GeneralGiftCard } from "@/components/CartButton";
+import ProgramImpact from "@/components/ProgramImpact";
 import { givingTiers, partnerRoadmap } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Get involved", description: "Donate, mentor, partner or sponsor to support Lake County Tech Campus students." };
@@ -21,14 +23,17 @@ export default function GetInvolvedPage() {
             <div>
               <p className="kicker">Give</p>
               <h2>Choose what you fund</h2>
-              <p>Ten giving opportunities, each paying for something specific a student needs. Give now or add a few to your giving list and pay once.</p>
+              <p>Give any amount, or pick one of ten giving opportunities, each paying for something specific a student needs. Add a few to your giving list and pay once.</p>
             </div>
           </div>
           <div className="gift-cards">
+            <GeneralGiftCard />
             {givingTiers.map(t => <GiftCard key={t.name} t={t} />)}
           </div>
         </div>
       </section>
+
+      <ProgramImpact tint />
 
       <section className="block">
         <div className="wrap">

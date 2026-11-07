@@ -11,7 +11,7 @@ const groups: { title: string; items: Omit<NavItem, "count">[] }[] = [
   { title: "Overview", items: [{ s: "dashboard", href: "/admin", label: "Dashboard" }] },
   { title: "Submissions", items: [
     { s: "donations", href: "/admin/donations", label: "Donations" },
-    { s: "applications", href: "/admin/applications", label: "Grant applications" },
+    { s: "applications", href: "/admin/applications", label: "Aid applications" },
     { s: "messages", href: "/admin/messages", label: "Messages" },
     { s: "rsvps", href: "/admin/rsvps", label: "Event RSVPs" },
     { s: "subscribers", href: "/admin/subscribers", label: "Subscribers" },

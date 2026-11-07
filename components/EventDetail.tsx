@@ -8,6 +8,7 @@ import type { FoundationEvent } from "@/lib/seed";
 import { eventParts, timeRange } from "./EventCard";
 import { Missing } from "./Missing";
 import { SampleTag } from "./Live";
+import { SeasonAmbient } from "./Seasons";
 import { Prose } from "./Prose";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -39,7 +40,7 @@ export default function EventDetail({ slug }: { slug: string }) {
 
   const p = eventParts(e.date);
   const isUpcoming = upcoming([e]).length > 0;
-  const taken = rsvps.filter(r => r.eventId === e.id).reduce((n, r) => n + 1 + r.guests, 0);
+  const taken = e.taken ?? rsvps.filter(r => r.eventId === e.id).reduce((n, r) => n + 1 + r.guests, 0);
   const left = e.capacity > 0 ? Math.max(0, e.capacity - taken) : Infinity;
   const recaps = posts.filter(x => x.published && x.eventId === e.id);
   const cal = calendarLinks(e);
@@ -48,6 +49,7 @@ export default function EventDetail({ slug }: { slug: string }) {
     <>
       <section className="page-hero">
         {e.image && <img src={e.image} alt="" width={1024} height={683} />}
+        <SeasonAmbient />
         <div className="wrap">
           <p className="crumbs"><Link href="/">Home</Link> / <Link href="/events">Events</Link> / {p.m} {p.d}</p>
           <h1>{e.title}</h1>
@@ -89,6 +91,7 @@ function RsvpForm({ e, left, cal }: { e: FoundationEvent; left: number; cal: { g
   const [f, setF] = useState({ name: "", email: "", guests: "0", note: "" });
   const [err, setErr] = useState("");
   const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (user) setF(p => ({ ...p, name: p.name || user.name, email: p.email || user.email }));
@@ -118,9 +121,12 @@ function RsvpForm({ e, left, cal }: { e: FoundationEvent; left: number; cal: { g
     if (!emailRe.test(f.email.trim())) return setErr("Please enter a valid email address.");
     if (1 + guests > left) return setErr(`Only ${left} spot${left === 1 ? "" : "s"} left.`);
     const email = f.email.trim().toLowerCase();
-    setErr("");
-    try { await insert("rsvps", { eventId: e.id, name: f.name.trim(), email, guests, note: f.note.trim(), createdAt: now() }); setDone(true); }
-    catch (x) { setErr((x as Error).message); }
+    setErr(""); setBusy(true);
+    try {
+      await insert("rsvps", { eventId: e.id, name: f.name.trim(), email, guests, note: f.note.trim(), createdAt: now() });
+      setDone(true);
+    } catch (x) { setErr((x as Error).message); }
+    finally { setBusy(false); }
   }
 
   const set = (k: keyof typeof f) => (ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF(p => ({ ...p, [k]: ev.target.value }));
@@ -132,7 +138,7 @@ function RsvpForm({ e, left, cal }: { e: FoundationEvent; left: number; cal: { g
       <div className="field"><label htmlFor="r-email">Email</label><input id="r-email" type="email" value={f.email} onChange={set("email")} autoComplete="email" /></div>
       <div className="field"><label htmlFor="r-guests">Guests you&apos;re bringing</label><input id="r-guests" type="number" min={0} max={10} value={f.guests} onChange={set("guests")} /></div>
       <div className="field"><label htmlFor="r-note">Note <span className="opt">(optional)</span></label><textarea id="r-note" rows={2} style={{ minHeight: 0 }} value={f.note} onChange={set("note")} placeholder="Dietary needs, accessibility, questions" /></div>
-      <button className="btn blue" type="submit">Reserve my spot</button>
+      <button className="btn blue" type="submit" disabled={busy}>{busy ? "Saving…" : "Reserve my spot"}</button>
       {!user && <p className="hint" style={{ textAlign: "center" }}><Link href="/login">Sign in</Link> to fill this in automatically.</p>}
     </form>
   );

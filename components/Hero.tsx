@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { slides } from "@/lib/content";
 import { DonateButton } from "./Actions";
+import { SeasonAmbient } from "./Seasons";
 import { eventParts, timeRange } from "./EventCard";
 import { useUpcomingEvents } from "./UpcomingEvents";
 
@@ -37,6 +38,8 @@ export default function Hero() {
         </div>
       ))}
 
+      <SeasonAmbient />
+
       <div className="hero-copy">
         <div className="wrap">
           <div>
@@ -45,7 +48,7 @@ export default function Hero() {
             <p className="lede">We help Lake County students turn hands-on career training into real careers, through scholarships, grants, tools, certifications and the community behind them.</p>
             <div className="hero-actions">
               <DonateButton className="btn spark">Donate today</DonateButton>
-              <Link className="btn ghost" href="/apply">Students: apply for aid</Link>
+              <Link className="btn ghost" href="/apply">Students &amp; teachers: apply for aid</Link>
             </div>
           </div>
           {nextEvent && (

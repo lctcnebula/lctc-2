@@ -29,6 +29,15 @@ export const grantTypes: GrantType[] = [
   { id: "emergency", name: "Emergency need", icon: "🤝", text: "Transportation, clothing or other urgent costs that could keep you from finishing." },
 ];
 
+// What teachers can apply for: support for their classroom, program or professional growth.
+export const teacherGrantTypes: GrantType[] = [
+  { id: "t-equipment", name: "Classroom equipment", icon: "🛠️", text: "Tools, technology or lab equipment your program needs." },
+  { id: "t-curriculum", name: "Curriculum & materials", icon: "📚", text: "New units, software licences, consumables and supplies." },
+  { id: "t-credential", name: "Professional development", icon: "📜", text: "Industry certifications, training or conferences that keep your teaching current." },
+  { id: "t-experience", name: "Student experience", icon: "🚌", text: "Field trips, competitions, guest experts or work-based learning for your students." },
+  { id: "t-other", name: "Something else", icon: "💡", text: "An idea that doesn't fit the boxes. Tell us about it." },
+];
+
 // Each type has its own preset amounts on the donate page; picking a type swaps the presets and
 // selects its default. `name` is what gets saved on the donation record (Admin → Donations → Fund).
 // Apart from "General" and "In honor or memory", the types are the Foundation's four pillars.
@@ -56,7 +65,7 @@ export const mission = "To empower Lake County Tech Campus students with the con
 
 export const campusFacts = [
   { value: "18", label: "member school districts" },
-  { value: "19", label: "career & technical programs" },
+  { value: "18", label: "career & technical programs" },
   { value: "2,100+", label: "students served" },
   { value: "2", label: "counties: Lake and McHenry" },
 ];

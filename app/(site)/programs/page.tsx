@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SeasonAmbient } from "@/components/Seasons";
 import ProgramExplorer from "@/components/ProgramExplorer";
 
 export const metadata: Metadata = { title: "Programs", description: "The career and technical programs Foundation gifts support." };
@@ -9,6 +10,7 @@ export default function ProgramsPage() {
     <>
       <section className="page-hero">
         <img src="/assets/img/construction.jpg" alt="" width={1024} height={683} />
+        <SeasonAmbient />
         <div className="wrap">
           <p className="crumbs"><Link href="/">Home</Link> / Programs</p>
           <h1>Ways to build a career</h1>

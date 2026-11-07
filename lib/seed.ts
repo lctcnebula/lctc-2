@@ -14,6 +14,8 @@ export type Program = {
 export type FoundationEvent = {
   id: string; slug: string; title: string; date: string; start: string; end: string; location: string;
   summary: string; body: string; image: string; capacity: number; rsvpOpen: boolean; published: boolean; sample?: boolean;
+  /** People already going (RSVPs + guests). Filled in by the server for visitors who can't see the RSVP list. */
+  taken?: number;
 };
 
 export type Rsvp = { id: string; eventId: string; name: string; email: string; guests: number; note: string; createdAt: string; sample?: boolean };
@@ -62,7 +64,9 @@ export type YearReport = {
 export type Scholarship = { id: string; name: string; who: string; award: string; how: string; url: string };
 
 export type Role = "superadmin" | "admin" | "accountant" | "user";
-export type User = { id: string; name: string; email: string; role: Role; pass: string; createdAt: string };
+// `pass` only exists on the server; the browser never receives it.
+export type User = { id: string; name: string; email: string; role: Role; pass?: string; createdAt: string };
+
 
 export type Settings = { email: string; phone: string; address: string; schools: string[] };
 
@@ -84,6 +88,7 @@ export const seed = {
     schools: [], // Added by the Foundation in Admin → Settings
   } as Settings,
 
+  // 18 programs. Names follow the Foundation's program list; descriptions are placeholders until edited in Admin → Programs.
   programs: [
     // The Tech Campus programs. Descriptions are based on the Tech Campus program pages; the Foundation edits them in Admin → Programs.
     { id: "pr1", slug: "automotive-collision-repair", name: "Automotive Collision Repair", cat: "trades", icon: "🚗", image: "/assets/img/auto.jpg", length: "Two years",
@@ -185,6 +190,62 @@ export const seed = {
       summary: "Celebrating the year's scholarship and grant recipients with their families.",
       body: "Recipients, families, donors and instructors come together to celebrate a year of hard work.",
       image: "/assets/img/graduates.jpg", capacity: 200, rsvpOpen: true, published: true, sample: true },
+    { id: "e5", slug: "back-to-school-supply-drive-2026", title: "Back-to-School Supply Drive", date: "2026-08-15", start: "9:00 AM", end: "12:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Collecting uniforms, safety glasses and program supplies before the school year starts.",
+      body: "Bring new supplies or give online. Volunteers sort everything into kits for first-year students.\n\n## Most needed\n- Safety glasses and gloves\n- Scrubs and chef coats\n- Basic hand tools",
+      image: "/assets/img/welder-shop.jpg", capacity: 0, rsvpOpen: true, published: true, sample: true },
+    { id: "e6", slug: "foundation-launch-celebration", title: "Foundation Launch Celebration", date: "2026-09-03", start: "5:30 PM", end: "7:30 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Celebrating the launch of the Lake County Tech Campus Foundation with students, staff and partners.",
+      body: "An evening to mark the Foundation's first year, with student demonstrations across programs.",
+      image: "/assets/img/graduates.jpg", capacity: 150, rsvpOpen: true, published: true, sample: true },
+    { id: "e7", slug: "industry-partner-breakfast", title: "Industry Partner Breakfast", date: "2026-10-08", start: "7:30 AM", end: "9:00 AM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Business leaders meet program instructors over breakfast cooked by culinary students.",
+      body: "Hear what employers need, see what students are learning, and find ways to partner.",
+      image: "/assets/img/catering.jpg", capacity: 60, rsvpOpen: true, published: true, sample: true },
+    { id: "e8", slug: "holiday-bake-sale", title: "Culinary Holiday Bake Sale", date: "2026-12-10", start: "3:00 PM", end: "6:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Pies, cookies and breads baked by culinary students. Proceeds go to student scholarships.",
+      body: "Pre-orders open the week before. Everything is made by Culinary Arts students in the teaching kitchen.",
+      image: "/assets/img/culinary.jpg", capacity: 0, rsvpOpen: true, published: true, sample: true },
+    { id: "e9", slug: "salon-day-for-a-cause", title: "Salon Day for a Cause", date: "2026-12-17", start: "10:00 AM", end: "2:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Haircuts, styles and manicures from cosmetology and nail students, by donation.",
+      body: "Book a time slot when you RSVP. Every donation goes to state board exam fees for students.",
+      image: "/assets/img/salon.jpg", capacity: 80, rsvpOpen: true, published: true, sample: true },
+    { id: "e10", slug: "cte-month-kickoff-2027", title: "CTE Month Kickoff", date: "2027-02-02", start: "5:00 PM", end: "7:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "The start of the Foundation's inaugural CTE Month campaign.",
+      body: "Students from every program show their work as we launch our February 2027 giving campaign.\n\n## What to expect\n- Live demonstrations\n- The giving tiers explained\n- Light food from culinary students",
+      image: "/assets/img/sparks.jpg", capacity: 200, rsvpOpen: true, published: true, sample: true },
+    { id: "e11", slug: "career-expo-2027", title: "Career Expo", date: "2027-02-18", start: "9:00 AM", end: "1:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Students meet employers, colleges and apprenticeship programs. Registration fees seed scholarships.",
+      body: "Employers and schools set up tables across campus. 100% of registration fees go into the scholarship fund.",
+      image: "/assets/img/mentoring.jpg", capacity: 400, rsvpOpen: true, published: true, sample: true },
+    { id: "e12", slug: "skillsusa-send-off", title: "SkillsUSA Send-Off", date: "2027-03-04", start: "4:00 PM", end: "5:30 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Cheer on the students heading to state SkillsUSA competitions.",
+      body: "Meet the competitors and help cover their entry and travel with a gift.",
+      image: "/assets/img/welding.jpg", capacity: 0, rsvpOpen: true, published: true, sample: true },
+    { id: "e14", slug: "cybersecurity-capture-the-flag", title: "Cybersecurity Capture the Flag", date: "2027-03-20", start: "9:00 AM", end: "3:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Student teams compete in a live ethical hacking challenge. Spectators welcome.",
+      body: "Watch teams defend and attack practice networks in a safe lab environment.",
+      image: "/assets/img/laptops.jpg", capacity: 50, rsvpOpen: true, published: true, sample: true },
+    { id: "e15", slug: "spring-open-house-2027", title: "Spring Open House", date: "2027-04-08", start: "5:00 PM", end: "7:30 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Tour every program, meet instructors and see what next year's students will learn.",
+      body: "Families, donors and partners are welcome. Each program runs hands-on stations.",
+      image: "/assets/img/construction.jpg", capacity: 0, rsvpOpen: true, published: true, sample: true },
+    { id: "e16", slug: "earth-day-garden-build", title: "Earth Day Garden Build", date: "2027-04-22", start: "9:00 AM", end: "12:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Construction students build raised garden beds for the preschool lab.",
+      body: "Volunteers welcome. Bring gloves; tools and lumber are provided.",
+      image: "/assets/img/construction.jpg", capacity: 40, rsvpOpen: true, published: true, sample: true },
+    { id: "e18", slug: "senior-signing-day-2027", title: "Senior Signing Day", date: "2027-05-20", start: "3:30 PM", end: "5:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "Seniors sign on with employers, apprenticeships and colleges.",
+      body: "Celebrate students committing to their next step, with families and employers in the room.",
+      image: "/assets/img/graduates.jpg", capacity: 250, rsvpOpen: true, published: true, sample: true },
+    { id: "e19", slug: "summer-welding-camp-2027", title: "Summer Welding Camp", date: "2027-06-14", start: "9:00 AM", end: "3:00 PM", location: "Lake County Tech Campus, 19525 W Washington St, Grayslake, IL 60030",
+      summary: "A week-long camp introducing middle schoolers to welding safely.",
+      body: "Run by Tech Campus instructors and advanced students. Scholarships available.",
+      image: "/assets/img/welder-shop.jpg", capacity: 24, rsvpOpen: true, published: true, sample: true },
+    { id: "e20", slug: "golf-outing-2027", title: "Fall Golf Outing", date: "2027-09-18", start: "8:00 AM", end: "2:00 PM", location: "To be announced",
+      summary: "A morning on the course raising money for student tool kits.",
+      body: "Nine holes, lunch and a raffle. Every foursome sponsors starter tool kits.",
+      image: "/assets/img/auto.jpg", capacity: 72, rsvpOpen: true, published: true, sample: true },
   ] as FoundationEvent[],
 
   rsvps: [
@@ -276,6 +337,8 @@ export const seed = {
   ] as YearReport[],
 
   scholarships: [] as Scholarship[],
+
+
 
   // Demo accounts, one per access level. Every password is "demo1234" (stored as sha256 of "email:password", see lib/auth.ts).
   users: [

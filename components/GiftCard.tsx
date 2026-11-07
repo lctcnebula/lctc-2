@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddTierToCart } from "./CartButton";
-import { MAX_QTY } from "@/lib/cart";
+import { AddTierToCart, QtyInput } from "./CartButton";
 import { money, type GivingTier } from "@/lib/content";
 
 // Shop-style card for one giving opportunity: photo, title, what it pays for, price, how many, add to the giving list.
@@ -16,11 +15,7 @@ export default function GiftCard({ t }: { t: GivingTier }) {
       <p className="gift-card-text">{t.impact}</p>
       <p className="gift-card-price">{money(t.amount)}{t.min ? "+" : <small> each</small>}</p>
       {!t.min && (
-        <div className="qty" role="group" aria-label={`How many: ${t.item}`}>
-          <button type="button" aria-label="One fewer" disabled={qty <= 1} onClick={() => setQty(q => q - 1)}>−</button>
-          <output aria-live="polite">{qty}</output>
-          <button type="button" aria-label="One more" disabled={qty >= MAX_QTY} onClick={() => setQty(q => q + 1)}>+</button>
-        </div>
+        <QtyInput id={"gq-" + t.name.replace(/\W+/g, "-")} value={qty} onChange={setQty} label={`How many: ${t.item}`} />
       )}
       <AddTierToCart name={t.name} qty={qty} className="btn blue" />
     </article>

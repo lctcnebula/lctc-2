@@ -4,7 +4,7 @@
 // form fields; this handles search, filters, create/edit/delete, CSV export and image upload.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { insert, remove, slugify, update, useData } from "@/lib/store";
+import { insert, remove, slugify, update, useData, useLoaded } from "@/lib/store";
 import type { CollectionKey } from "@/lib/seed";
 import { useSite } from "../Providers";
 import { shrink } from "@/lib/image";
@@ -23,6 +23,8 @@ export type Field = {
   /** For "slug": the field it is generated from. For "readonly": how to show the value. */
   from?: string;
   show?: (r: Row) => React.ReactNode;
+  /** Leave the field out for rows where it doesn't apply. */
+  hide?: (r: Row) => boolean;
 };
 
 export type Column = { label: string; get: (r: Row) => React.ReactNode; csv?: (r: Row) => string | number; className?: string };
@@ -67,6 +69,7 @@ export const fmtDateTime = (iso: string) => iso ? new Date(iso).toLocaleString("
 
 export default function Manager(p: Props) {
   const all = useData(p.collection) as unknown as Row[];
+  const loaded = useLoaded(p.collection);
   const { say } = useSite();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState(0);
@@ -152,7 +155,7 @@ export default function Manager(p: Props) {
         {p.filters && (
           <div className="filters" role="group" aria-label="Filter">
             {p.filters.map((f, k) => (
-              <button key={f.label} className="chip" type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
+              <button key={k} className="chip" type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
                 {f.label}<span className="n">{all.filter(r => (!p.where || p.where(r)) && f.test(r)).length}</span>
               </button>
             ))}
@@ -174,7 +177,7 @@ export default function Manager(p: Props) {
                 </td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={p.columns.length + 1} className="table-empty">Nothing here yet.</td></tr>}
+            {!rows.length && <tr><td colSpan={p.columns.length + 1} className="table-empty">{loaded ? "Nothing here yet." : "Loading…"}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -190,7 +193,7 @@ export default function Manager(p: Props) {
               {draft.sample && <p className="demo-note">This is sample content. Saving any change marks it as your own.</p>}
               {err && <p className="form-alert" role="alert">{err}</p>}
               <div className="drawer-grid">
-                {p.fields.map(f => <FieldInput key={f.key} f={f} row={draft} set={set} disabled={!canEdit} onError={setErr} />)}
+                {p.fields.filter(f => !f.hide?.(draft)).map(f => <FieldInput key={f.key} f={f} row={draft} set={set} disabled={!canEdit} onError={setErr} />)}
               </div>
             </div>
             <footer>

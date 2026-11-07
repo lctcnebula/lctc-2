@@ -5,6 +5,7 @@ import DemoAutofill from "@/components/DemoAutofill";
 import { DataProvider } from "@/lib/store";
 import { initialData } from "@/lib/server/initial";
 import "./globals.css";
+import "./seasons.css";
 
 const display = Barlow_Condensed({ subsets: ["latin"], weight: ["600", "800"], style: ["italic"], variable: "--font-display" });
 const body = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-body" });
