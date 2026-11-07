@@ -65,6 +65,47 @@ html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
   .sl-bulb { scale: .85; }
 }
 
+/* ---------- Spring flowers and fall leaves on the same line ---------- */
+.sl-hang { position: absolute; transform-origin: 50% 0; line-height: 0; }
+.sl-hang svg { display: block; overflow: visible; }
+.sl-hang.flower svg, .sl-hang.fall-leaf svg { transform-origin: 50% 0; animation: sl-sway 3.2s ease-in-out var(--d) infinite alternate; filter: drop-shadow(0 1px 1px rgba(10,37,64,.18)); }
+.sl-hang.flower { margin-top: -8px; }
+.sl-hang.leaf { margin-top: -2px; }
+.sl-hang.fall-leaf { margin-top: -2px; }
+@keyframes sl-sway { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+
+/* ---------- Summer: a strip of beach ---------- */
+.season-lights.summer { height: 34px; }
+.season-beach { position: absolute; inset: 0 0 auto 0; height: 34px; }
+.season-beach::before { /* sand */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 13px;
+  background:
+    radial-gradient(circle at 20% 40%, rgba(176,130,70,.35) 0 .8px, transparent 1.2px) 0 0 / 11px 7px,
+    radial-gradient(circle at 70% 70%, rgba(176,130,70,.3) 0 .7px, transparent 1.1px) 0 0 / 17px 9px,
+    linear-gradient(#f6e2b3, #efd096);
+}
+.sb-water { position: absolute; left: 0; top: 11px; width: 200%; height: 14px; display: block; animation: sb-tide 14s linear infinite; }
+.season-beach { overflow-x: clip; }
+.sb-item { position: absolute; top: -4px; transform: translateX(-50%); line-height: 0; }
+.sb-item svg { display: block; filter: drop-shadow(0 1px 1px rgba(10,37,64,.2)); }
+.sb-item.umbrella { top: -9px; }
+.sb-item.crab { top: 0; }
+.sb-item.ball svg { animation: sb-bob 2.6s ease-in-out var(--d) infinite alternate; }
+.sb-item.crab svg { animation: sb-scuttle 5s ease-in-out infinite; }
+.sb-item.star svg { animation: sb-tilt 4s ease-in-out var(--d) infinite alternate; }
+@keyframes sb-tide { to { transform: translateX(-50%); } }
+@keyframes sb-bob { from { transform: translateY(0) rotate(0); } to { transform: translateY(2px) rotate(25deg); } }
+@keyframes sb-scuttle { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 50% { transform: translateX(0); } 75% { transform: translateX(6px); } }
+@keyframes sb-tilt { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+@media (max-width: 600px) {
+  .sl-hang:nth-of-type(4n+2), .sl-hang:nth-of-type(4n+3) { display: none; }
+  .sl-hang svg { scale: .8; }
+  .sb-item:nth-of-type(even) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-hang svg, .sb-water, .sb-item svg { animation: none !important; }
+}
+
 /* ---------- Ambient ~30s "video" layer ---------- */
 /* Lives inside the top banner (home hero and page heroes): above the photo and its shading, below the text. */
 .season-ambient {
