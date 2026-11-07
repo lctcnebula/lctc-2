@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getAll, insert, now } from "@/lib/store";
+import { insert, now } from "@/lib/store";
 
 // Sign-ups land in Admin → Subscribers.
 export default function EventSubscribe() {
@@ -9,13 +9,16 @@ export default function EventSubscribe() {
   const [err, setErr] = useState("");
   const [done, setDone] = useState(false);
 
-  function send(e: React.FormEvent) {
+  const [busy, setBusy] = useState(false);
+
+  async function send(e: React.FormEvent) {
     e.preventDefault();
     const v = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return setErr("Please enter a valid email address.");
-    setErr("");
-    if (!getAll("subscribers").some(s => s.email.toLowerCase() === v)) insert("subscribers", { email: v, name: "", createdAt: now() });
-    setDone(true);
+    setErr(""); setBusy(true);
+    try { await insert("subscribers", { email: v, name: "", createdAt: now() }); setDone(true); }
+    catch (x) { setErr((x as Error).message); }
+    finally { setBusy(false); }
   }
 
   if (done) return <p className="subscribe-done" role="status">You&apos;re subscribed. We&apos;ll email {email.trim()} before each event.</p>;
@@ -25,7 +28,7 @@ export default function EventSubscribe() {
       <label className="sr-only" htmlFor="sub-email">Email address</label>
       <input id="sub-email" type="email" placeholder="you@example.com" autoComplete="email" value={email}
         onChange={e => setEmail(e.target.value)} aria-invalid={!!err} aria-describedby="sub-err" />
-      <button className="btn solid" type="submit">Subscribe</button>
+      <button className="btn solid" type="submit" disabled={busy}>{busy ? "Saving…" : "Subscribe"}</button>
       <p id="sub-err" className="subscribe-err" role="alert">{err}</p>
     </form>
   );

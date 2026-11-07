@@ -85,10 +85,8 @@ export function GivingSidebar() {
                     <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : "Any amount"}</span>
                     {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
                     {d.fixed && (
-                      <div className="qty sm" role="group" aria-label={`How many: ${d.title}`}>
-                        <button type="button" aria-label="One fewer" disabled={i.qty <= 1} onClick={() => setQty(i.id, i.qty - 1)}>−</button>
-                        <output aria-live="polite">{i.qty}</output>
-                        <button type="button" aria-label="One more" disabled={i.qty >= MAX_QTY} onClick={() => setQty(i.id, i.qty + 1)}>+</button>
+                      <div className="qty-field sm">
+                        <QtyInput id={"q-" + i.id} value={i.qty} onChange={n => setQty(i.id, n)} label={`How many: ${d.title}`} />
                         <small>× {money(d.unit!)}</small>
                       </div>
                     )}
@@ -121,8 +119,8 @@ export function GivingSidebar() {
   );
 }
 
-// "Add to giving list" for a giving tier, used on the pricing page.
-export function AddTierToCart({ name, className = "btn line" }: { name: string; className?: string }) {
+// "Add to giving list" for a giving tier, used on the pricing and Get Involved pages.
+export function AddTierToCart({ name, className = "btn line", label = "Add to giving list" }: { name: string; className?: string; label?: string }) {
   const { say } = useSite();
   const t = givingTiers.find(x => x.name === name);
   if (!t) return null;
@@ -131,6 +129,57 @@ export function AddTierToCart({ name, className = "btn line" }: { name: string; 
       addToCart({ type: t.type, tier: t.name, qty: 1, amount: t.amount, freq: "once", purpose: "general", who: "", why: "", note: "" });
       say(`Added ${t.item.toLowerCase()} to your giving list`);
       openGivingList();
-    }}>Add to giving list</button>
+    }}>{label}</button>
+  );
+}
+
+/** A typed quantity (1 to MAX_QTY). Bad or empty input snaps back when the field loses focus. */
+export function QtyInput({ id, value, onChange, label }: { id: string; value: number; onChange: (n: number) => void; label: string }) {
+  const [text, setText] = useState(String(value));
+  useEffect(() => setText(String(value)), [value]);
+  return (
+    <span className="qty-input">
+      <label htmlFor={id}>Qty</label>
+      <input id={id} type="text" inputMode="numeric" pattern="[0-9]*" aria-label={label} value={text} maxLength={2}
+        onChange={e => {
+          const v = e.target.value.replace(/\D/g, "").slice(0, 2);
+          setText(v);
+          const n = parseInt(v, 10);
+          if (n >= 1) onChange(Math.min(MAX_QTY, n));
+        }}
+        onBlur={() => setText(String(value))} />
+    </span>
+  );
+}
+
+/** "General donation" on the Get involved page: the donor types any amount and adds it to their giving list. */
+export function GeneralGiftCard() {
+  const { say } = useSite();
+  const [amt, setAmt] = useState("50");
+  const [err, setErr] = useState("");
+  const n = parseFloat(amt);
+  function give() {
+    if (!(n >= 5)) { setErr("Please enter at least $5."); document.getElementById("gen-amt")?.focus(); return; }
+    addToCart({ type: "general", qty: 1, amount: Math.round(n * 100) / 100, freq: "once", purpose: "general", who: "", why: "", note: "" });
+    say(`Added ${money(n)} to your giving list`);
+    openGivingList();
+  }
+  return (
+    <article className="reveal general-gift">
+      <p className="gift-tag"><i aria-hidden="true">💙</i>General donation</p>
+      <h3>Give any amount</h3>
+      <p className="gift-item">Wherever students need it most</p>
+      <p className="gift-impact">Not sure what to fund? A general gift goes to the scholarships, tools and credentials students need most this year.</p>
+      <footer>
+        <div className="amount-field">
+          <label htmlFor="gen-amt">Your amount</label>
+          <span><b aria-hidden="true">$</b><input id="gen-amt" type="text" inputMode="decimal" value={amt} aria-invalid={err ? true : undefined}
+            onChange={e => { setErr(""); setAmt(e.target.value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1").replace(/(\.\d{2}).+/, "$1").slice(0, 9)); }}
+            onKeyDown={e => { if (e.key === "Enter") give(); }} /></span>
+          {err && <small className="err">{err}</small>}
+        </div>
+        <button type="button" className="btn sm blue" onClick={give}>Give {n >= 5 ? money(n) : "this gift"}</button>
+      </footer>
+    </article>
   );
 }

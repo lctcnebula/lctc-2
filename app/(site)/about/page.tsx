@@ -41,14 +41,20 @@ export default function AboutPage() {
 
       <section className="block tint">
         <div className="wrap">
-          <div className="mission-block reveal">
-            <p className="kicker">Our mission</p>
-            <p className="mission">{mission}</p>
-          </div>
-          <div className="promises reveal">
-            <div><small>Our purpose</small><b>Open doors to opportunity</b><p>Bring together community partners, industry leaders and philanthropic resources to expand opportunities for Tech Campus students.</p></div>
-            <div><small>Our commitment</small><b>Invest in what&apos;s possible</b><p>Strengthen career and technical education through meaningful experiences, innovative programs, industry-recognized credentials and student scholarships.</p></div>
-            <div><small>Our promise</small><b>Build the foundation for what&apos;s next</b><p>Champion opportunities that help students build the skills, confidence and experience to take their next step.</p></div>
+          <div className="mission-grid">
+            <div className="mission-block reveal">
+              <p className="kicker">Our mission</p>
+              <p className="mission">{mission}</p>
+              <div className="hero-actions">
+                <Link className="btn blue" href="/donate">Support the mission</Link>
+                <Link className="btn line" href="/board">Meet the board</Link>
+              </div>
+            </div>
+            <div className="promises reveal">
+              <div><i aria-hidden="true">🚪</i><small>Our purpose</small><b>Open doors to opportunity</b><p>Bring together community partners, industry leaders and philanthropic resources to expand opportunities for Tech Campus students.</p></div>
+              <div><i aria-hidden="true">🌱</i><small>Our commitment</small><b>Invest in what&apos;s possible</b><p>Strengthen career and technical education through meaningful experiences, innovative programs, industry-recognized credentials and student scholarships.</p></div>
+              <div><i aria-hidden="true">🧱</i><small>Our promise</small><b>Build the foundation for what&apos;s next</b><p>Champion opportunities that help students build the skills, confidence and experience to take their next step.</p></div>
+            </div>
           </div>
         </div>
       </section>
@@ -92,7 +98,7 @@ export default function AboutPage() {
       <section className="photo-band" aria-label="Our belief">
         <img src="/assets/img/sparks.jpg" alt="" width={1024} height={696} loading="lazy" />
         <div className="wrap reveal">
-          <blockquote>Every student deserves to step confidently into the workforce or higher education.</blockquote>
+          <blockquote>Every student and every teacher deserves the tools to step confidently into what&apos;s next.</blockquote>
           <cite>{site.name}</cite>
         </div>
       </section>

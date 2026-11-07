@@ -3,7 +3,9 @@ import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import WaysToHelp from "@/components/WaysToHelp";
 import GiveCta from "@/components/GiveCta";
-import { partnerRoadmap, pillars } from "@/lib/content";
+import { AddTierToCart, GeneralGiftCard } from "@/components/CartButton";
+import ProgramImpact from "@/components/ProgramImpact";
+import { findDonationType, givingTiers, money, partnerRoadmap } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Get involved", description: "Donate, mentor, partner or sponsor to support Lake County Tech Campus students." };
 
@@ -19,23 +21,32 @@ export default function GetInvolvedPage() {
           <div className="head reveal">
             <div>
               <p className="kicker">Give</p>
-              <h2>Choose a pillar to support</h2>
-              <p>The Foundation&apos;s work rests on four pillars. Every gift, any size, goes straight to students.</p>
+              <h2>Choose a gift to give</h2>
+              <p>Give any amount, or pick one of ten gifts tied to something a student needs. Every gift goes straight to students.</p>
             </div>
-            <Link className="text-link" href="/donations">All types of donations →</Link>
           </div>
-          <div className="pillars">
-            {pillars.map(p => (
-              <Link className="reveal" key={p.name} href={`/donate?type=${p.type}`}>
-                <i aria-hidden="true">{p.icon}</i>
-                <b>{p.name}</b>
-                <span>{p.text}</span>
-                <em>Give to this pillar →</em>
-              </Link>
-            ))}
+          <div className="gifts">
+            <GeneralGiftCard />
+            {givingTiers.map(t => {
+              const type = findDonationType(t.type);
+              return (
+                <article className={"reveal" + (t.min ? " major-gift" : "")} key={t.name}>
+                  {type && <p className="gift-tag"><i aria-hidden="true">{type.icon}</i>{type.name}</p>}
+                  <h3>{t.name}</h3>
+                  <p className="gift-item">{t.item}</p>
+                  <p className="gift-impact">{t.impact}</p>
+                  <footer>
+                    <p className="gift-price"><b>{money(t.amount)}{t.min && "+"}</b><span>{t.min ? "starting gift" : "one-time gift"}</span></p>
+                    <AddTierToCart name={t.name} className={"btn sm " + (t.min ? "solid" : "blue")} label="Give this gift" />
+                  </footer>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
+
+      <ProgramImpact tint />
 
       <section className="block">
         <div className="wrap">

@@ -11,7 +11,7 @@ const groups: { title: string; items: Omit<NavItem, "count">[] }[] = [
   { title: "Overview", items: [{ s: "dashboard", href: "/admin", label: "Dashboard" }] },
   { title: "Submissions", items: [
     { s: "donations", href: "/admin/donations", label: "Donations" },
-    { s: "applications", href: "/admin/applications", label: "Grant applications" },
+    { s: "applications", href: "/admin/applications", label: "Aid applications" },
     { s: "messages", href: "/admin/messages", label: "Messages" },
     { s: "rsvps", href: "/admin/rsvps", label: "Event RSVPs" },
     { s: "subscribers", href: "/admin/subscribers", label: "Subscribers" },
@@ -81,7 +81,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       <div className="admin-main">
         <div className="admin-top">
           <button className="admin-burger" type="button" aria-expanded={open} aria-label="Menu" onClick={() => setOpen(o => !o)}>☰</button>
-          <span className="demo-flag">Demo: data is saved in this browser only</span>
+          <span className="demo-flag">Live: changes save to the site database</span>
         </div>
         {allowed ? children : (
           <div className="admin-card"><h1>No access</h1><p className="hint">Your role ({roleLabels[user.role]}) can&apos;t open this section. Ask a super admin if you need it.</p></div>

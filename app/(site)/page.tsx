@@ -5,6 +5,7 @@ import UpcomingEvents from "@/components/UpcomingEvents";
 import GiveCta from "@/components/GiveCta";
 import { DonateButton } from "@/components/Actions";
 import { OutsideScholarshipsLink, ProgramCount, ProgramPaths, SchoolTicker } from "@/components/Live";
+import ProgramImpact from "@/components/ProgramImpact";
 import { grantTypes, site } from "@/lib/content";
 
 export default function Home() {
@@ -17,7 +18,7 @@ export default function Home() {
 
       <section className="intro reveal">
         <div className="wrap">
-          <h2>Creating bright futures for students and families in Lake County</h2>
+          <h2>Creating bright futures for students <br className="br-wide" />and families in Lake County</h2>
           <p>Tech Campus students learn a trade with their hands, on the same equipment they&apos;ll use at work. The Foundation makes sure cost never decides who gets to finish.</p>
           <p style={{ marginTop: 18 }}><Link className="text-link" href="/about">More about the Foundation →</Link></p>
         </div>
@@ -64,11 +65,12 @@ export default function Home() {
       <section className="aid" aria-labelledby="aid-title">
         <div className="wrap" style={{ paddingBlock: "clamp(80px, 10vw, 120px)" }}>
           <div className="reveal">
-            <p className="kicker">For students</p>
-            <h2 id="aid-title">Need help finishing your program?</h2>
-            <p className="sub">Any Tech Campus student can apply for Foundation support. One short application covers scholarships, grants for tools and fees, and emergency help. It takes about 10 minutes, and your progress saves as you go.</p>
+            <p className="kicker">For students &amp; teachers</p>
+            <h2 id="aid-title">Need support for your program?</h2>
+            <p className="sub">Tech Campus students can apply for scholarships, grants for tools and fees, and emergency help. Teachers can apply for equipment, materials and experiences for their students. One short application, about 10 minutes, and your progress saves as you go.</p>
             <div className="hero-actions">
-              <Link className="btn spark" href="/apply">Start your application</Link>
+              <Link className="btn spark" href="/apply?as=student">Apply as a student</Link>
+              <Link className="btn ghost" href="/apply?as=teacher">Apply as a teacher</Link>
               <OutsideScholarshipsLink />
             </div>
           </div>
@@ -89,19 +91,20 @@ export default function Home() {
           <div className="head reveal">
             <div>
               <p className="kicker">The programs you support</p>
-              <h2>Programs your gift reaches</h2>
+              <h2>All <ProgramCount /> programs your gift reaches</h2>
               <p>Every program pairs classroom learning with real equipment and industry standards.</p>
             </div>
-            <Link className="text-link" href="/programs">See all <ProgramCount /> programs →</Link>
           </div>
-          <ProgramPaths limit={6} />
+          <ProgramPaths />
         </div>
       </section>
+
+      <ProgramImpact />
 
       <section className="photo-band" aria-label="Our belief">
         <img src="/assets/img/sparks.jpg" alt="" width={1024} height={696} loading="lazy" />
         <div className="wrap reveal">
-          <blockquote>Every student deserves a skill they can build a life on.</blockquote>
+          <blockquote>Every student deserves a skill to build a life on, and every teacher the tools to teach it.</blockquote>
           <cite>{site.name}</cite>
         </div>
       </section>

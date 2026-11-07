@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { palette, useSite } from "./Providers";
 import { ConfettiButton } from "./Actions";
-import { ADD_MORE, CHECKOUT, openGivingList } from "./CartButton";
-import { getAll, insert, money, now } from "@/lib/store";
+import { ADD_MORE, CHECKOUT, openGivingList, QtyInput } from "./CartButton";
+import { insert, insertMany, money, now } from "@/lib/store";
 import { useUser } from "@/lib/auth";
 import { addToCart, cartItems, clearCart, dedicationLine, describe, MAX_QTY, occasions, purposes, repeats, totals, useCart, type CartItem, type Purpose } from "@/lib/cart";
 import { donationTypes, findDonationType, givingTiers, tiersFor } from "@/lib/content";
@@ -207,15 +207,21 @@ export default function DonateCheckout() {
       const b = brandOf(card) as keyof typeof brandNames;
       const id = "LCTC-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       const name = f.name.trim(), email = f.email.trim(), paidWith = `${brandNames[b]} ending ${card.slice(-4)}`;
-      for (const i of items) {
-        const d = describe(i);
-        insert("donations", {
-          receipt: id, name, email, amount: i.amount, freq: i.freq, fund: d.type.name, ...(d.tierLabel && { tier: d.tierLabel }),
-          ...(d.dedication && { dedication: d.dedication, ...(i.note.trim() && { note: i.note.trim() }) }), keepInTouch: keep,
-          card: paidWith, createdAt: now(),
-        });
+      try {
+        // Every gift in this checkout is saved together, under one receipt number.
+        await insertMany("donations", items.map(i => {
+          const d = describe(i);
+          return {
+            receipt: id, name, email, amount: i.amount, freq: i.freq, fund: d.type.name, ...(d.tierLabel && { tier: d.tierLabel }),
+            ...(d.dedication && { dedication: d.dedication, ...(i.note.trim() && { note: i.note.trim() }) }), keepInTouch: keep,
+            card: paidWith, createdAt: now(),
+          };
+        }));
+        if (keep) await insert("subscribers", { email, name, createdAt: now() }).catch(() => {});
+      } catch (x) {
+        setAlert((x as Error).message);
+        return;
       }
-      if (keep && !getAll("subscribers").some(s => s.email.toLowerCase() === email.toLowerCase())) insert("subscribers", { email, name, createdAt: now() });
       setReceipt({
         first: name.split(/\s+/)[0], id, items, card: paidWith, email, keep,
         date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
@@ -300,11 +306,7 @@ export default function DonateCheckout() {
                   <b>{chosenTier.item}</b>
                   <span>{money(chosenTier.amount)} each</span>
                 </div>
-                <div className="qty" role="group" aria-label="How many">
-                  <button type="button" aria-label="One fewer" disabled={qty <= 1} onClick={() => changeQty(qty - 1)}>−</button>
-                  <output aria-live="polite">{qty}</output>
-                  <button type="button" aria-label="One more" disabled={qty >= MAX_QTY} onClick={() => changeQty(qty + 1)}>+</button>
-                </div>
+                <QtyInput id="d-qty" value={qty} onChange={changeQty} label="How many" />
                 <p className="fixed-total">Total <b>{money(amount)}</b></p>
               </div>
             ) : <>

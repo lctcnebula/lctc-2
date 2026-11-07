@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Options } from "canvas-confetti";
+import { STORE_ERROR } from "@/lib/store";
 
 export const palette = ["#015998", "#013f6c", "#a7aab0", "#ffffff", "#5fa8e0", "#ff8a3d"];
 
@@ -57,6 +58,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     }
     say("🎉 Here's to Lake County students!");
   }, [getConfetti, say]);
+
+  // A save the server refused (or couldn't receive) is explained in the toast.
+  useEffect(() => {
+    const onErr = (e: Event) => say("⚠️ " + (e as CustomEvent<string>).detail);
+    addEventListener(STORE_ERROR, onErr);
+    return () => removeEventListener(STORE_ERROR, onErr);
+  }, [say]);
 
   // Every new page opens at the top, instantly (no animated scroll from where you clicked).
   useEffect(() => {

@@ -1,31 +1,42 @@
 "use client";
 
-// Demo login with four access levels. Front-end only: accounts and the session live in this
-// browser, so this keeps honest people on the right screens but is not real security.
-// Swap for a real auth provider before storing anything sensitive.
+// Sign-in for the site. Passwords are checked on the server, which keeps the session in an
+// httpOnly cookie; this file just asks the server who is signed in and tells pages when it changes.
 
 import { useSyncExternalStore } from "react";
-import { getAll, insert, now, useData } from "./store";
+import { refresh } from "./store";
 import type { Role, User } from "./seed";
 
-const SESSION = "lctc-session";
+export { can, isStaff, roleLabels, type Section } from "./roles";
+
+type Session = { user: User | null };
+let session: Session | undefined;
+let started = false;
 const listeners = new Set<() => void>();
 
-export const roleLabels: Record<Role, string> = { superadmin: "Super admin", admin: "Admin", accountant: "Accountant", user: "Member" };
+function set(user: User | null) {
+  session = { user };
+  listeners.forEach(l => l());
+}
 
-export type Section =
-  | "dashboard" | "donations" | "applications" | "messages" | "rsvps" | "subscribers"
-  | "events" | "blog" | "programs" | "board" | "alumni" | "reports" | "scholarships" | "users" | "settings";
+async function loadMe() {
+  try {
+    const r = await fetch("/api/auth/me", { cache: "no-store" });
+    set(r.ok ? (await r.json()).user : null);
+  } catch { set(null); }
+}
 
-const access: Record<Role, Section[] | "all"> = {
-  superadmin: "all",
-  admin: ["dashboard", "donations", "applications", "messages", "rsvps", "subscribers", "events", "blog", "programs", "board", "alumni", "reports", "scholarships", "settings"],
-  accountant: ["dashboard", "donations", "reports"],
-  user: [],
-};
+function subscribe(l: () => void) {
+  if (!started) { started = true; loadMe(); }
+  listeners.add(l);
+  return () => { listeners.delete(l); };
+}
 
-export const can = (role: Role | undefined, s: Section) => !!role && (access[role] === "all" || (access[role] as Section[]).includes(s));
-export const isStaff = (role: Role | undefined) => can(role, "dashboard");
+/** The signed-in user, or null. `ready` is false until the server has answered. */
+export function useUser(): { user: User | null; ready: boolean } {
+  const s = useSyncExternalStore(subscribe, () => session, () => undefined);
+  return s ? { user: s.user, ready: true } : { user: null, ready: false };
+}
 
 export const demoAccounts: { email: string; role: Role; what: string }[] = [
   { email: "superadmin@lctc.demo", role: "superadmin", what: "Everything, plus managing staff accounts" },
@@ -35,47 +46,29 @@ export const demoAccounts: { email: string; role: Role; what: string }[] = [
 ];
 export const DEMO_PASSWORD = "demo1234";
 
-export async function hash(email: string, password: string) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email.trim().toLowerCase() + ":" + password));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function readSession() {
-  try { return localStorage.getItem(SESSION); } catch { return null; }
-}
-function setSession(id: string | null) {
-  try { id ? localStorage.setItem(SESSION, id) : localStorage.removeItem(SESSION); } catch {}
-  listeners.forEach(l => l());
-}
-function subscribe(l: () => void) {
-  listeners.add(l);
-  const onStorage = (e: StorageEvent) => { if (e.key === SESSION) l(); };
-  addEventListener("storage", onStorage);
-  return () => { listeners.delete(l); removeEventListener("storage", onStorage); };
-}
-
-/** The signed-in user, or null. `ready` is false during server render and hydration. */
-export function useUser(): { user: User | null; ready: boolean } {
-  const id = useSyncExternalStore(subscribe, readSession, () => undefined as unknown as string | null);
-  const users = useData("users");
-  if (id === undefined) return { user: null, ready: false };
-  return { user: users.find(u => u.id === id) ?? null, ready: true };
+async function post(path: string, body: object) {
+  const r = await fetch("/api/auth/" + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Something went wrong. Please try again.");
+  return j as { user: User };
 }
 
 export async function signIn(email: string, password: string) {
-  const e = email.trim().toLowerCase();
-  const u = getAll("users").find(x => x.email.toLowerCase() === e);
-  if (!u || u.pass !== await hash(e, password)) throw new Error("That email and password don't match.");
-  setSession(u.id);
-  return u;
+  const { user } = await post("login", { email, password });
+  set(user);
+  await refresh(true);
+  return user;
 }
 
 export async function register(name: string, email: string, password: string) {
-  const e = email.trim().toLowerCase();
-  if (getAll("users").some(x => x.email.toLowerCase() === e)) throw new Error("An account with that email already exists. Try signing in.");
-  const u = insert("users", { name: name.trim(), email: e, role: "user", pass: await hash(e, password), createdAt: now() });
-  setSession(u.id);
-  return u;
+  const { user } = await post("register", { name, email, password });
+  set(user);
+  await refresh(true);
+  return user;
 }
 
-export const signOut = () => setSession(null);
+export async function signOut() {
+  await post("logout", {}).catch(() => {});
+  set(null);
+  await refresh(true);
+}

@@ -1,10 +1,21 @@
 # LCTC Foundation website
 
-Front-end only Next.js site for the Lake County Tech Campus Foundation, hosted on Vercel, with a built-in admin dashboard. No API routes, no database.
+Next.js site for the Lake County Tech Campus Foundation with a built-in admin dashboard and its own small database.
 
-**Important:** with no server, everything the dashboard manages (events, RSVPs, blog posts, donations, applications, messages, subscribers, board, alumni, yearly reports, staff accounts) is saved in the visitor's own browser (localStorage). It is a fully working demo, but a submission made on one computer is not visible on another. To go live, swap the bodies of the functions in `lib/store.ts` and `lib/auth.ts` for calls to a real backend (e.g. Supabase); the pages don't need to change.
+Every public form (donations, aid applications, contact messages, RSVPs, subscribers, alumni sign-ups) is saved on the server, so the admin dashboard sees submissions from any computer. Open pages refresh themselves every few seconds.
+
+**Where the data lives** (`lib/server/db.ts`, picked automatically):
+- **Vercel (lctc-2):** the Neon Postgres database `lctc-db`, already connected to the project (`DATABASE_URL`). The site keeps everything in its own table, `lctc_site_store`, one row per environment (`site:production`, `site:preview`), so preview deployments never touch live data. It doesn't use the other tables in that database. Each save checks nobody else saved in between, so simultaneous submissions on different servers are never lost.
+- **Local:** a JSON file at `.data/db.json` (change with `DATA_DIR`). Delete it to start over from `lib/seed.ts`. If you pull Vercel env vars into `.env.local`, local dev uses Postgres (`site:development` row) instead; set `LCTC_STORE=file` to keep using the file.
+- Upstash Redis / Vercel KV also works (`UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) if Postgres isn't set.
+- Optional `SESSION_SECRET` signs sign-in cookies; otherwise one is generated and stored in the database.
+
+Passwords are checked on the server and never sent to the browser. Visitors only receive published content; staff receive the lists their role allows (`lib/roles.ts`); members see their own gifts and RSVPs.
 
 ## Admin dashboard
+
+Admin → Donations has three views: **Submissions** (one row per checkout, all its gifts and the receipt), **Donors** (everyone who gave, with every donation and receipt) and **Gift lines** (each gift on its own line, for recording checks and offline gifts).
+
 
 Sign in at `/login`. Demo accounts (password `demo1234` for all):
 
@@ -40,7 +51,7 @@ Import the GitHub repo in Vercel. It detects Next.js automatically: no settings 
 | `/` | Home: hero slideshow, stats, member-school ticker (once schools are added in Settings), student aid, programs, events, donate |
 | `/programs` | All programs with category filters |
 | `/programs/[slug]` | One page per program, generated from the data |
-| `/apply` | Four-step student grant application, plus outside scholarships |
+| `/apply` | Aid application for students or teachers (the first step asks which), plus outside scholarships |
 
 ## Editing content
 
@@ -51,8 +62,9 @@ Day-to-day content is edited in the admin dashboard. Starting data is in `lib/se
 
 
 - The form checks every field before it can be finished (`lib/application.ts`).
-- Progress saves on the student's device, so they can come back later.
-- On submit it goes to Admin → Grant applications, and the student gets a confirmation number plus a download/print copy.
+- Students and teachers get different questions (teachers: position, program taught, classroom requests, a supervisor reference).
+- Progress saves on the applicant's device, so they can come back later.
+- On submit it goes to Admin → Aid applications, and the applicant gets a confirmation number plus a download/print copy.
 
 ## Donations
 

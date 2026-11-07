@@ -34,17 +34,22 @@ export function AlumniForm() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF(p => ({ ...p, [k]: e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value }));
 
-  function send(e: React.FormEvent) {
+  const [busy, setBusy] = useState(false);
+
+  async function send(e: React.FormEvent) {
     e.preventDefault();
     if (f.name.trim().length < 2) return setErr("Please enter your name.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) return setErr("Please enter a valid email address.");
     if (!/^\d{4}$/.test(f.year.trim())) return setErr("Enter the year you finished, like 2019.");
-    setErr("");
-    insert("alumni", {
-      name: f.name.trim(), email: f.email.trim(), program: f.program, year: f.year.trim(), now: f.now.trim(),
-      story: f.share ? f.story.trim() : "", photo: "", published: false, createdAt: now(),
-    });
-    setDone(true);
+    setErr(""); setBusy(true);
+    try {
+      await insert("alumni", {
+        name: f.name.trim(), email: f.email.trim(), program: f.program.trim(), year: f.year.trim(), now: f.now.trim(),
+        story: f.share ? f.story.trim() : "", photo: "", published: false, createdAt: now(),
+      });
+      setDone(true);
+    } catch (x) { setErr((x as Error).message); }
+    finally { setBusy(false); }
   }
 
   if (done) return (
@@ -68,18 +73,15 @@ export function AlumniForm() {
       <div className="row2">
         <div className="field">
           <label htmlFor="al-program">Program</label>
-          <select id="al-program" value={f.program} onChange={set("program")}>
-            <option value="">Choose…</option>
-            {programs.map(p => <option key={p.id}>{p.name}</option>)}
-            <option>Other</option>
-          </select>
+          <input id="al-program" list="al-programs" placeholder="e.g. Welding & Fabrication" value={f.program} onChange={set("program")} autoComplete="off" />
+          <datalist id="al-programs">{programs.map(p => <option key={p.id} value={p.name} />)}</datalist>
         </div>
         <div className="field"><label htmlFor="al-year">Year finished</label><input id="al-year" inputMode="numeric" maxLength={4} placeholder="2019" value={f.year} onChange={set("year")} /></div>
       </div>
       <div className="field"><label htmlFor="al-now">What you do now <span className="opt">(optional)</span></label><input id="al-now" placeholder="e.g. Journeyman electrician at…" value={f.now} onChange={set("now")} /></div>
       <div className="field"><label htmlFor="al-story">Your story <span className="opt">(optional)</span></label><textarea id="al-story" rows={4} value={f.story} onChange={set("story")} /></div>
       <label className="check-row"><input type="checkbox" checked={f.share} onChange={set("share")} /> It&apos;s OK to share my story on this site</label>
-      <button className="btn blue" type="submit">Join</button>
+      <button className="btn blue" type="submit" disabled={busy}>{busy ? "Sending…" : "Join"}</button>
     </form>
   );
 }

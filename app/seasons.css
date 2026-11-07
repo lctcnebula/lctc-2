@@ -1,0 +1,117 @@
+/* =========================================================================
+   Seasonal theme (components/Seasons.tsx). <html data-season="winter|spring|summer|fall">
+   is set on the client after hydration; nothing here applies before that.
+   ========================================================================= */
+
+html[data-season="winter"] { --season-accent: #5fa8e0; --season-tint: #eef5fc; }
+html[data-season="spring"] { --season-accent: #f48fb1; --season-tint: #fdf2f6; }
+html[data-season="summer"] { --season-accent: #ffb703; --season-tint: #fff8e6; }
+html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
+
+/* The rest of the site keeps its normal colours: seasons only touch the header and the top banner. */
+
+/* ---------- Logo decorations ---------- */
+.brand { position: relative; }
+.season-logo { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.season-logo svg { position: absolute; display: block; height: auto; overflow: visible; }
+.season-logo > * { animation: sz-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+
+/* Santa hat, cocked on the shield's top-left corner */
+.sz-hat { width: 15%; left: -4%; top: -25%; transform: rotate(-16deg); transform-origin: 40% 80%; }
+.sz-hat { animation: sz-pop .7s cubic-bezier(.2, 1.4, .4, 1) both, sz-hat 4.5s ease-in-out .7s infinite; }
+.sz-pom { transform-box: fill-box; transform-origin: 50% 0; animation: sz-pom 4.5s ease-in-out .7s infinite; }
+
+/* Fall: squirrel with an acorn on the end of the grey bar + maple leaves on the shield */
+.sz-squirrel { width: 11%; left: 94.5%; top: -27%; }
+.sz-tail { transform-box: view-box; transform-origin: 40px 56px; animation: sz-tail 3.2s ease-in-out 1s infinite; }
+.sz-leaf.a { width: 9%; left: -3%; top: -12%; transform: rotate(-28deg); animation: sz-pop .7s cubic-bezier(.2, 1.4, .4, 1) both, sz-leaf 5s ease-in-out infinite; }
+.sz-leaf.b { width: 6%; left: 5%; top: -6%; transform: rotate(24deg); animation: sz-pop .7s .15s cubic-bezier(.2, 1.4, .4, 1) both, sz-leaf 6s ease-in-out .4s infinite reverse; }
+
+/* Spring: a little blossom sprig on the shield corner */
+.sz-sprig { position: absolute; width: 14%; aspect-ratio: 40 / 30; left: -3%; top: -18%; }
+.sz-sprig .sz-stem { width: 100%; left: 0; top: 0; }
+.sz-bloom { animation: sz-spin 14s linear infinite; }
+.sz-bloom.one { width: 50%; left: 52%; top: -14%; }
+.sz-bloom.two { width: 34%; left: 2%; top: 36%; animation-direction: reverse; animation-duration: 18s; }
+
+/* Summer: a sun wearing shades */
+.sz-sun { width: 11.5%; left: -4%; top: -21%; }
+.sz-rays { transform-box: view-box; transform-origin: 30px 30px; animation: sz-spin 22s linear infinite; }
+
+@keyframes sz-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+@keyframes sz-hat { 0%, 100% { transform: rotate(-16deg); } 50% { transform: rotate(-10deg); } }
+@keyframes sz-pom { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(12deg); } }
+@keyframes sz-tail { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(5deg); } 92% { transform: rotate(-4deg); } }
+@keyframes sz-leaf { 0%, 100% { translate: 0 0; } 50% { translate: 0 6%; } }
+@keyframes sz-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Christmas lights along the bottom of the header ---------- */
+.season-lights { position: absolute; left: 0; right: 0; top: calc(100% - 2px); height: 26px; pointer-events: none; }
+.sl-wire { position: absolute; left: 0; top: 0; width: 100%; height: 12px; display: block; overflow: visible; }
+.sl-bulb { position: absolute; width: 7px; height: 13px; transform-origin: 50% 0; }
+.sl-bulb::before { content: ""; position: absolute; left: 1.5px; top: 0; width: 4px; height: 4px; border-radius: 1px; background: #2f4a35; }
+.sl-bulb::after {
+  content: ""; position: absolute; left: 0; top: 3px; width: 7px; height: 10px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.85) 0 1.4px, transparent 2.2px), var(--c);
+  box-shadow: 0 0 6px 1px var(--c), 0 2px 10px 0 var(--c);
+  animation: sl-twinkle 2.4s ease-in-out var(--d) infinite alternate;
+}
+@keyframes sl-twinkle {
+  0%, 30% { opacity: 1; filter: brightness(1.1); }
+  100% { opacity: .5; filter: brightness(.8); box-shadow: 0 0 2px 0 var(--c); }
+}
+@media (max-width: 600px) {
+  .sl-bulb:nth-of-type(even) { display: none; }
+  .sl-bulb { scale: .85; }
+}
+
+/* ---------- Ambient ~30s "video" layer ---------- */
+/* Lives inside the top banner (home hero and page heroes): above the photo and its shading, below the text. */
+.season-ambient {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+  opacity: 0; transition: opacity .8s ease; display: block;
+}
+.season-ambient.on { opacity: 1; }
+
+/* ---------- Switcher pill ---------- */
+.season-switch {
+  position: fixed; z-index: 48;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.season-pill {
+  display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 14px 0 11px; border-radius: 99px; cursor: pointer;
+  font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+  background: rgba(255,255,255,.92); backdrop-filter: blur(10px) saturate(1.3);
+  border: 1px solid var(--line); box-shadow: 0 0 0 3px color-mix(in srgb, var(--season-accent, #5fa8e0) 22%, transparent), 0 10px 24px -12px rgba(10,37,64,.45);
+  transition: transform .2s var(--ease), box-shadow .2s;
+}
+.season-pill:hover { transform: translateY(-2px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--season-accent, #5fa8e0) 40%, transparent), 0 14px 28px -12px rgba(10,37,64,.5); }
+.season-pill .se { font-size: 1rem; line-height: 1; }
+.season-menu {
+  position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 236px; list-style: none; padding: 6px; border-radius: 16px;
+  background: #fff; border: 1px solid var(--line); box-shadow: 0 22px 44px -18px rgba(10,37,64,.45);
+  transform-origin: 100% 100%; animation: sm-in .18s var(--ease) both;
+}
+.season-menu button {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-radius: 10px; background: none;
+  font-size: .88rem; font-weight: 500; color: var(--ink); text-align: left; cursor: pointer; white-space: nowrap;
+}
+.season-menu button:hover, .season-menu button:focus-visible { background: var(--mist); outline: none; }
+.season-menu button:focus-visible { box-shadow: inset 0 0 0 2px #5fa8e0; }
+.season-menu button[aria-checked="true"] { background: var(--blue-wash); color: var(--blue); font-weight: 700; }
+.season-menu button > span:nth-child(2) { flex: 1; }
+.season-menu button[aria-checked="true"]::after { content: "✓"; font-weight: 800; }
+.season-menu .hint { font-size: .72rem; color: var(--muted); font-weight: 500; }
+.season-menu .se { width: 1.3em; text-align: center; }
+@keyframes sm-in { from { opacity: 0; transform: translateY(6px) scale(.96); } }
+
+@media (max-width: 480px) {
+  .season-pill { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .season-pill .sn { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .season-logo *, .season-logo > *, .sl-bulb::after, .season-menu, .season-pill { animation: none !important; transition: none; }
+  .sz-hat { transform: rotate(-16deg); }
+}

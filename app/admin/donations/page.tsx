@@ -1,15 +1,63 @@
 "use client";
 
+import { useState } from "react";
 import Manager, { fmtDateTime } from "@/components/admin/Manager";
+import { Donors, exportDonors, exportSubmissions, Submissions } from "@/components/admin/DonationGroups";
 import { funds } from "@/components/DonateCheckout";
 import { money, now, useData } from "@/lib/store";
 import { frequencies, type Freq } from "@/lib/seed";
 
+const tabs = [
+  { id: "subs", label: "Submissions", hint: "One row per checkout. Gifts paid together share one receipt.", filters: ["All", "Several gifts", "Recurring", "Dedicated"] },
+  { id: "donors", label: "Donors", hint: "Everyone who has given, with every donation and receipt.", filters: ["All", "Gave more than once", "Recurring", "Wants updates"] },
+  { id: "lines", label: "Gift lines", hint: "Each gift on its own line. Record checks and offline gifts here.", filters: [] },
+] as const;
+
 export default function DonationsAdmin() {
+  const [tab, setTab] = useState<(typeof tabs)[number]["id"]>("subs");
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState(0);
+  const donations = useData("donations");
+  const t = tabs.find(x => x.id === tab)!;
+  const switchTo = (id: typeof tab) => { setTab(id); setFilter(0); };
+
+  if (tab === "lines") return <><DonationTabs tab={tab} onTab={switchTo} /><Lines /></>;
+  return (
+    <div className="admin-page">
+      <header className="admin-head">
+        <div><h1>Donations</h1><p className="hint">{t.hint}</p></div>
+        <div className="admin-actions">
+          <DonationTotals />
+          <button className="btn line sm" type="button" disabled={!donations.length}
+            onClick={() => (tab === "subs" ? exportSubmissions : exportDonors)(donations)}>Export CSV</button>
+          <button className="btn blue sm" type="button" onClick={() => switchTo("lines")}>Record a gift</button>
+        </div>
+      </header>
+      <DonationTabs tab={tab} onTab={switchTo} />
+      <div className="admin-tools">
+        <input type="search" placeholder="Search name, email, receipt…" value={q} onChange={e => setQ(e.target.value)} aria-label="Search" />
+        <div className="filters" role="group" aria-label="Filter">
+          {t.filters.map((f, k) => <button key={f} className="chip" type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>{f}</button>)}
+        </div>
+      </div>
+      {tab === "subs" ? <Submissions q={q} filter={filter} /> : <Donors q={q} filter={filter} />}
+    </div>
+  );
+}
+
+function DonationTabs({ tab, onTab }: { tab: string; onTab: (id: (typeof tabs)[number]["id"]) => void }) {
+  return (
+    <div className="admin-tabs" role="tablist" aria-label="Donation views">
+      {tabs.map(x => <button key={x.id} type="button" role="tab" aria-selected={tab === x.id} onClick={() => onTab(x.id)}>{x.label}</button>)}
+    </div>
+  );
+}
+
+function Lines() {
   return (
     <Manager
       collection="donations" title="Donations" noun="donations" newLabel="Record a gift"
-      intro="Every gift made on the donate page lands here. Record checks and offline gifts with “Record a gift”."
+      intro="Each gift on its own line. Record checks and offline gifts with “Record a gift”; use the same receipt number to group gifts into one submission."
       search={r => `${r.name} ${r.email} ${r.fund} ${r.receipt} ${r.dedication ?? ""}`}
       sort={(a, b) => b.createdAt.localeCompare(a.createdAt)}
       filters={[

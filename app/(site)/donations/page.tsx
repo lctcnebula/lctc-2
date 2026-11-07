@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import GiveCta from "@/components/GiveCta";
-import { donationTypes, money, programImpact } from "@/lib/content";
+import ProgramImpact from "@/components/ProgramImpact";
+import { donationTypes, money } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Types of donations", description: "Choose a type of donation: general, scholarships, tools, certifications, student grants or a tribute gift." };
 
@@ -33,20 +34,7 @@ export default function DonationsPage() {
         </div>
       </section>
 
-      <section className="block">
-        <div className="wrap">
-          <div className="head reveal">
-            <div>
-              <p className="kicker">Program by program</p>
-              <h2>What your gift funds</h2>
-              <p>Donor gifts go to the equipment, credentials and experiences each program needs.</p>
-            </div>
-          </div>
-          <div className="program-impact">
-            {programImpact.map(p => <div className="reveal" key={p.name}><b>{p.name}</b><span>{p.text}</span></div>)}
-          </div>
-        </div>
-      </section>
+      <ProgramImpact />
 
       <section className="block">
         <div className="wrap"><GiveCta /></div>

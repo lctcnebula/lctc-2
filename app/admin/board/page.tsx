@@ -8,7 +8,7 @@ const byOrder = (a: { order: number }, b: { order: number }) => a.order - b.orde
 
 // Writes 1, 2, 3... in the given sequence so positions never have gaps or ties.
 function renumber(list: { id: string; order: number }[]) {
-  list.forEach((m, i) => { if (m.order !== i + 1) update("board", m.id, { order: i + 1 }); });
+  list.forEach((m, i) => { if (m.order !== i + 1) update("board", m.id, { order: i + 1 }).catch(() => {}); });
 }
 
 function move(id: string, by: -1 | 1) {
@@ -25,7 +25,7 @@ function placeAt(r: Row) {
   const at = Math.min(Math.max(1, Math.round(+r.order || others.length + 1)), others.length + 1);
   others.forEach((m, i) => {
     const want = i + 1 < at ? i + 1 : i + 2;
-    if (m.order !== want) update("board", m.id, { order: want });
+    if (m.order !== want) update("board", m.id, { order: want }).catch(() => {});
   });
   return { ...r, order: at };
 }

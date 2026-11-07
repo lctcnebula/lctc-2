@@ -13,11 +13,13 @@ export default function SettingsAdmin() {
   useEffect(() => setF({ email: s.email, phone: s.phone, address: s.address, schools: s.schools.join("\n") }), [s]);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF(p => ({ ...p, [k]: e.target.value }));
 
-  function save(e: React.FormEvent) {
+  async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) return say("Enter a valid email address.");
-    saveSettings({ email: f.email.trim(), phone: f.phone.trim(), address: f.address.trim(), schools: f.schools.split("\n").map(x => x.trim()).filter(Boolean) });
-    say("Settings saved");
+    try {
+      await saveSettings({ email: f.email.trim(), phone: f.phone.trim(), address: f.address.trim(), schools: f.schools.split("\n").map(x => x.trim()).filter(Boolean) });
+      say("Settings saved");
+    } catch {}
   }
 
   return (
@@ -34,9 +36,9 @@ export default function SettingsAdmin() {
       </form>
       {can(user?.role, "users") && (
         <div className="admin-card danger-zone">
-          <h2>Reset demo data</h2>
-          <p className="hint">Clears every change and submission saved in this browser and restores the sample content. You&apos;ll stay signed in only if your account is one of the demo accounts.</p>
-          <button className="btn line sm danger" type="button" onClick={() => { if (confirm("Reset all data in this browser?")) { resetAll(); say("Demo data restored"); } }}>Reset everything</button>
+          <h2>Reset all data</h2>
+          <p className="hint">Deletes every change and submission in the database and restores the sample content. You&apos;ll stay signed in only if your account is one of the demo accounts.</p>
+          <button className="btn line sm danger" type="button" onClick={async () => { if (confirm("Reset ALL data on the server? Every submission and edit will be deleted.")) { try { await resetAll(); say("Demo data restored"); } catch {} } }}>Reset everything</button>
         </div>
       )}
     </div>
