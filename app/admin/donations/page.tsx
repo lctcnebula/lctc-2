@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Manager, { fmtDateTime } from "@/components/admin/Manager";
-import { Donors, exportDonors, exportSubmissions, Submissions } from "@/components/admin/DonationGroups";
+import { Donors, exportDonors, exportSubmissions, Submissions, groupSubmissions, groupDonors, filterSubmissions, filterDonors } from "@/components/admin/DonationGroups";
 import { funds } from "@/components/DonateCheckout";
 import { money, now, useData } from "@/lib/store";
+import DateFilter, { useAdminDateRange } from "@/components/admin/DateFilter";
+import { recordDate, withinDateRange } from "@/lib/date-range";
 import { frequencies, type Freq } from "@/lib/seed";
 
 const tabs = [
@@ -18,6 +20,10 @@ export default function DonationsAdmin() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState(0);
   const donations = useData("donations");
+  const { range } = useAdminDateRange();
+  const inPeriod = donations.filter(d => withinDateRange(recordDate(d), range));
+  const submissions = filterSubmissions(groupSubmissions(inPeriod), q, filter);
+  const donors = filterDonors(groupDonors(groupSubmissions(inPeriod)), q, filter);
   const t = tabs.find(x => x.id === tab)!;
   const switchTo = (id: typeof tab) => { setTab(id); setFilter(0); };
 
@@ -28,19 +34,20 @@ export default function DonationsAdmin() {
         <div><h1>Donations</h1><p className="hint">{t.hint}</p></div>
         <div className="admin-actions">
           <DonationTotals />
-          <button className="btn line sm" type="button" disabled={!donations.length}
-            onClick={() => (tab === "subs" ? exportSubmissions : exportDonors)(donations)}>Export CSV</button>
+          <button className="btn line sm" type="button" disabled={!(tab === "subs" ? submissions : donors).length}
+            onClick={() => tab === "subs" ? exportSubmissions(submissions) : exportDonors(donors)}>Export CSV</button>
           <button className="btn blue sm" type="button" onClick={() => switchTo("lines")}>Record a gift</button>
         </div>
       </header>
       <DonationTabs tab={tab} onTab={switchTo} />
+      <DateFilter basis="Donation date; donor totals and receipts use gifts in this period" />
       <div className="admin-tools">
         <input type="search" placeholder="Search name, email, receipt…" value={q} onChange={e => setQ(e.target.value)} aria-label="Search" />
         <div className="filters" role="group" aria-label="Filter">
           {t.filters.map((f, k) => <button key={f} className="chip" type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>{f}</button>)}
         </div>
       </div>
-      {tab === "subs" ? <Submissions q={q} filter={filter} /> : <Donors q={q} filter={filter} />}
+      {tab === "subs" ? <Submissions key={`s-${q}-${filter}-${range.from}-${range.to}`} rows={submissions} /> : <Donors key={`d-${q}-${filter}-${range.from}-${range.to}`} rows={donors} />}
     </div>
   );
 }
@@ -99,7 +106,8 @@ function Lines() {
 }
 
 function DonationTotals() {
-  const d = useData("donations");
+  const { range } = useAdminDateRange();
+  const d = useData("donations").filter(d => withinDateRange(recordDate(d), range));
   const total = d.reduce((n, x) => n + x.amount, 0);
   const sum = (f: Freq) => d.filter(x => x.freq === f).reduce((n, x) => n + x.amount, 0);
   return <span className="totals"><b>{money(total)}</b> recorded · <b>{money(sum("monthly"))}</b>/mo and <b>{money(sum("yearly"))}</b>/yr recurring</span>;

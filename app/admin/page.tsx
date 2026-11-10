@@ -1,5 +1,7 @@
 "use client";
 
+import DateFilter, { useAdminDateRange } from "@/components/admin/DateFilter";
+import { recordDate, withinDateRange } from "@/lib/date-range";
 import Link from "next/link";
 import { can, roleLabels, useUser, type Section } from "@/lib/auth";
 import { money, upcoming, useData } from "@/lib/store";
@@ -9,14 +11,15 @@ import { groupSubmissions } from "@/components/admin/DonationGroups";
 
 export default function Dashboard() {
   const { user } = useUser();
-  const donations = useData("donations");
-  const applications = useData("applications");
-  const messages = useData("messages");
-  const rsvps = useData("rsvps");
-  const subscribers = useData("subscribers");
-  const alumni = useData("alumni");
+  const { range } = useAdminDateRange();
+  const donations = useData("donations").filter(r => withinDateRange(recordDate(r), range));
+  const applications = useData("applications").filter(r => withinDateRange(recordDate(r), range));
+  const messages = useData("messages").filter(r => withinDateRange(recordDate(r), range));
+  const rsvps = useData("rsvps").filter(r => withinDateRange(recordDate(r), range));
+  const subscribers = useData("subscribers").filter(r => withinDateRange(recordDate(r), range));
+  const alumni = useData("alumni").filter(r => withinDateRange(recordDate(r), range));
   const events = useData("events");
-  const reports = useData("reports");
+  const reports = useData("reports").filter(r => withinDateRange(recordDate(r), range));
   if (!user) return null;
   const ok = (s: Section) => can(user.role, s);
 
@@ -45,7 +48,7 @@ export default function Dashboard() {
     ...alumni.map(a => ({ at: a.createdAt, s: "alumni" as const, href: "/admin/alumni", text: <><b>{a.name}</b> joined the alumni list</> })),
   ].filter(a => ok(a.s)).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
 
-  const next = upcoming(events).slice(0, 4);
+  const next = upcoming(events.filter(e => withinDateRange(recordDate(e), range))).slice(0, 4);
 
   return (
     <div className="admin-page">
@@ -57,6 +60,7 @@ export default function Dashboard() {
         </div>
       </header>
 
+      <DateFilter basis="Submission dates; content uses the date it was added to the system" />
       <div className="kpis">
         {cards.filter(c => ok(c.s)).map(c => (
           <Link key={c.label} className="kpi" href={c.href}><span>{c.label}</span><b>{c.value}</b><small>{c.sub}</small></Link>

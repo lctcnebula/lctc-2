@@ -7,6 +7,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { insert, remove, slugify, update, useData, useLoaded } from "@/lib/store";
 import type { CollectionKey } from "@/lib/seed";
 import { useSite } from "../Providers";
+import DateFilter, { useAdminDateRange } from "./DateFilter";
+import { recordDate, withinDateRange, REPORT_TIME_ZONE } from "@/lib/date-range";
 import { shrink } from "@/lib/image";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -63,13 +65,14 @@ export function csvDownload(name: string, columns: Column[], rows: Row[]) {
   URL.revokeObjectURL(url);
 }
 
-export const fmtDate = (iso: string) => iso ? new Date(iso.length === 10 ? iso + "T12:00:00" : iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-export const fmtDateTime = (iso: string) => iso ? new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+export const fmtDate = (iso: string) => iso ? new Date(iso.length === 10 ? iso + "T12:00:00" : iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: REPORT_TIME_ZONE }) : "";
+export const fmtDateTime = (iso: string) => iso ? new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: REPORT_TIME_ZONE }) + " CT" : "";
 
 
 export default function Manager(p: Props) {
   const all = useData(p.collection) as unknown as Row[];
   const loaded = useLoaded(p.collection);
+  const { range } = useAdminDateRange();
   const { say } = useSite();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState(0);
@@ -77,14 +80,17 @@ export default function Manager(p: Props) {
   const [isNew, setIsNew] = useState(false);
   const [err, setErr] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
+  const columns = ["programs", "events", "posts", "board", "reports", "scholarships"].includes(p.collection)
+    ? [...p.columns, { label: "Added", get: (r: Row) => fmtDateTime(recordDate(r)), csv: (r: Row) => recordDate(r) }]
+    : p.columns;
   const canEdit = p.canEdit ?? true, canDelete = p.canDelete ?? true;
 
   const rows = useMemo(() => {
     const f = p.filters?.[filter];
     const needle = q.trim().toLowerCase();
-    const out = all.filter(r => (!p.where || p.where(r)) && (!f || f.test(r)) && (!needle || p.search(r).toLowerCase().includes(needle)));
+    const out = all.filter(r => withinDateRange(recordDate(r), range) && (!p.where || p.where(r)) && (!f || f.test(r)) && (!needle || p.search(r).toLowerCase().includes(needle)));
     return p.sort ? [...out].sort(p.sort) : out;
-  }, [all, q, filter, p]);
+  }, [all, q, filter, p, range.from, range.to]);
 
   useEffect(() => {
     const d = dialog.current;
@@ -145,18 +151,19 @@ export default function Manager(p: Props) {
         </div>
         <div className="admin-actions">
           {p.headerExtra}
-          <button className="btn line sm" type="button" onClick={() => csvDownload(p.collection, p.columns, rows)} disabled={!rows.length}>Export CSV</button>
+          <button className="btn line sm" type="button" onClick={() => csvDownload(p.collection, columns, rows)} disabled={!rows.length}>Export CSV</button>
           {p.canCreate !== false && canEdit && <button className="btn blue sm" type="button" onClick={() => open(null)}>{p.newLabel ?? "Add new"}</button>}
         </div>
       </header>
 
+      <DateFilter />
       <div className="admin-tools">
         <input type="search" placeholder="Search…" value={q} onChange={e => setQ(e.target.value)} aria-label="Search" />
         {p.filters && (
           <div className="filters" role="group" aria-label="Filter">
             {p.filters.map((f, k) => (
               <button key={k} className="chip" type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
-                {f.label}<span className="n">{all.filter(r => (!p.where || p.where(r)) && f.test(r)).length}</span>
+                {f.label}<span className="n">{all.filter(r => withinDateRange(recordDate(r), range) && (!p.where || p.where(r)) && f.test(r)).length}</span>
               </button>
             ))}
           </div>
@@ -166,18 +173,18 @@ export default function Manager(p: Props) {
 
       <div className="table-wrap">
         <table className="admin-table">
-          <thead><tr>{p.columns.map(c => <th key={c.label} className={c.className}>{c.label}</th>)}<th aria-label="Actions" /></tr></thead>
+          <thead><tr>{columns.map(c => <th key={c.label} className={c.className}>{c.label}</th>)}<th aria-label="Actions" /></tr></thead>
           <tbody>
             {rows.map(r => (
               <tr key={r.id} onClick={() => open(r)} tabIndex={0} onKeyDown={e => { if (e.key === "Enter") open(r); }}>
-                {p.columns.map(c => <td key={c.label} className={c.className}>{c.get(r)}</td>)}
+                {columns.map(c => <td key={c.label} className={c.className}>{c.get(r)}</td>)}
                 <td className="row-actions" onClick={e => e.stopPropagation()}>
                   {p.rowActions?.(r)}
                   <button type="button" className="link-btn" onClick={() => open(r)}>{canEdit ? "Edit" : "View"}</button>
                 </td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={p.columns.length + 1} className="table-empty">{loaded ? "Nothing here yet." : "Loading…"}</td></tr>}
+            {!rows.length && <tr><td colSpan={columns.length + 1} className="table-empty">{loaded ? "No records match the selected filters." : "Loading…"}</td></tr>}
           </tbody>
         </table>
       </div>

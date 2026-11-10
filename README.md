@@ -90,3 +90,11 @@ Day-to-day content is edited in the admin dashboard. Starting data is in `lib/se
 ## Donations
 
 The donate page is a **demo checkout**: donors pick from the ten giving opportunities and pay with a test card, and each gift is saved to the database, but no card is charged. To take real gifts, swap the submit handler in `components/DonateCheckout.tsx` for a hosted payment page (Stripe Checkout, PayPal, Givebutter, etc.).
+
+### Admin date filters
+
+Every admin list and the dashboard has a shared date range: All time, Today, Last 7 days, Last month, Last 3 months, Last 6 months, or a custom From/To pair. The selection stays active while navigating admin pages. Dates use America/Chicago and include both boundary days. Month presets select the previous complete calendar month(s); Last 7 days includes today.
+
+Submissions use their submitted/created timestamps. Content without those fields uses the database record's creation timestamp, shown in an Added column. For imported content, this is when the record was added to this database, not its historical publication date. The timestamp is read-only. Invalid ranges show no matches and cannot export records.
+
+Search and status filters combine with the date range. CSV exports match displayed rows. Donor totals and receipt lists include only gifts inside the selected period. `npm test` covers date boundaries, daylight saving time, grouping, and filtered exports.

@@ -1090,3 +1090,13 @@ a.person > p:not(.company) { display: -webkit-box; -webkit-line-clamp: 3; -webki
 .general-gift-give { flex-direction: column; align-items: center; width: 100%; margin-top: auto; }
 
 .qty-input button svg { display: block; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+
+.admin-date-filter { margin: 20px 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; min-width: 0; }
+.admin-date-filter legend { padding: 0 6px; font-size: .8rem; font-weight: 700; color: var(--ink); }
+.date-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.date-inputs { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.date-inputs label { display: grid; gap: 4px; font-size: .78rem; font-weight: 600; }
+.date-inputs input { width: 170px; max-width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 8px 10px; color: var(--ink); font: inherit; }
+.date-inputs .link-btn { padding: 9px 0; }
+.admin-date-filter > p { margin-top: 10px; font-size: .74rem; }
+@media (max-width: 480px) { .date-inputs label { flex: 1 1 120px; min-width: 0; } .date-inputs input { width: 100%; } .admin-date-filter { padding: 12px; } }

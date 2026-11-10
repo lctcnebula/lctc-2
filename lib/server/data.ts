@@ -30,9 +30,9 @@ const newId = () => Date.now().toString(36) + randomBytes(3).toString("hex");
 const staffFor = (v: Viewer | null, k: CollectionKey) => can(v?.role, sectionOf[k]);
 const sameEmail = (a: unknown, b: string) => String(a ?? "").toLowerCase() === b.toLowerCase();
 
-async function rows(k: CollectionKey): Promise<Doc[]> {
-  const r = await sql`SELECT data FROM records WHERE collection = ${k} ORDER BY created_at DESC, id`;
-  return r.map(x => x.data as Doc);
+async function rows(k: CollectionKey, includeDates = false): Promise<Doc[]> {
+  const r = await sql`SELECT data, created_at FROM records WHERE collection = ${k} ORDER BY created_at DESC, id`;
+  return r.map(x => includeDates ? { ...(x.data as Doc), recordedAt: new Date(x.created_at as string).toISOString() } : x.data as Doc);
 }
 
 async function users(): Promise<Doc[]> {
@@ -45,7 +45,7 @@ export async function readCollection<K extends CollectionKey>(k: K, v: Viewer | 
   if (k === "users") return (staffFor(v, k) ? await users() : []) as DB[K];
   const staff = staffFor(v, k);
   if (!staff && !PUBLIC.includes(k) && k !== "rsvps" && k !== "donations") return [] as DB[K];
-  let list = await rows(k);
+  let list = await rows(k, staff);
   if (!staff) {
     if (k === "events" || k === "posts") list = list.filter(x => x.published);
     if (k === "alumni") list = list.filter(x => x.published).map(({ email: _, ...x }) => x as Doc);
@@ -82,7 +82,8 @@ export async function createItem(k: CollectionKey, input: Record<string, unknown
   const staff = staffFor(v, k);
   if (!staff && !PUBLIC_CREATE.includes(k)) throw new HttpError(403, "You don't have access to add this.");
   if (k === "users") return createUser(input);
-  let d = { ...input, id: newId() } as Doc;
+  const { recordedAt: _recordedAt, ...fields } = input;
+  let d = { ...fields, id: newId() } as Doc;
   if (!staff) d = fromPublic(k, d);
   const email = String(d.email ?? "").trim().toLowerCase();
 
@@ -99,20 +100,20 @@ export async function createItem(k: CollectionKey, input: Record<string, unknown
     const taken = list.reduce((n, r) => n + 1 + Number(r.guests || 0), 0);
     if (!staff && Number(ev.capacity) > 0 && taken + 1 + Number(d.guests || 0) > Number(ev.capacity)) throw new HttpError(409, "Sorry, there aren't enough seats left.");
   }
-  await sql`INSERT INTO records (collection, id, data) VALUES (${k}, ${d.id}, ${JSON.stringify(d)}::jsonb)`;
-  return d;
+  const inserted = await sql`INSERT INTO records (collection, id, data) VALUES (${k}, ${d.id}, ${JSON.stringify(d)}::jsonb) RETURNING created_at`;
+  return staff ? { ...d, recordedAt: new Date(inserted[0].created_at as string).toISOString() } : d;
 }
 
 /** Editing clears the "sample" flag, since the content is now the Foundation's own. */
 export async function updateItem(k: CollectionKey, id: string, patch: Record<string, unknown>, v: Viewer | null): Promise<Doc> {
   if (!staffFor(v, k)) throw new HttpError(403, "You don't have access to change this.");
   if (k === "users") return updateUser(id, patch, v!);
-  const { id: _i, ...rest } = patch;
+  const { id: _i, recordedAt: _recordedAt, ...rest } = patch;
   const r = await sql`
     UPDATE records SET data = data || ${JSON.stringify({ ...rest, sample: false })}::jsonb, updated_at = now()
-    WHERE collection = ${k} AND id = ${id} RETURNING data`;
+    WHERE collection = ${k} AND id = ${id} RETURNING data, created_at`;
   if (!r[0]) throw new HttpError(404, "That item no longer exists.");
-  return r[0].data as Doc;
+  return { ...(r[0].data as Doc), recordedAt: new Date(r[0].created_at as string).toISOString() };
 }
 
 export async function removeItem(k: CollectionKey, id: string, v: Viewer | null) {

@@ -4,8 +4,8 @@
 // a monthly gift…); each gift is stored as its own line, all sharing one receipt number.
 // "Submissions" clubs those lines back into one row per checkout; "Donors" clubs every checkout per person.
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { money, useData, useLoaded } from "@/lib/store";
+import { useEffect, useRef, useState } from "react";
+import { money, useLoaded } from "@/lib/store";
 import { frequencies, type Donation, type Freq } from "@/lib/seed";
 import { csvDownload, fmtDate, fmtDateTime, type Row } from "./Manager";
 
@@ -101,14 +101,20 @@ function ReceiptCard({ s }: { s: Submission }) {
   );
 }
 
-export function Submissions({ q, filter }: { q: string; filter: number }) {
-  const donations = useData("donations");
-  const loaded = useLoaded("donations");
-  const [open, setOpen] = useState<Submission | null>(null);
-  const all = useMemo(() => groupSubmissions(donations), [donations]);
+export function filterSubmissions(all: Submission[], q: string, filter: number) {
   const tests = [() => true, (s: Submission) => s.lines.length > 1, (s: Submission) => s.monthly + s.yearly > 0, (s: Submission) => s.lines.some(l => l.dedication)];
   const needle = q.trim().toLowerCase();
-  const rows = all.filter(s => tests[filter](s) && (!needle || `${s.name} ${s.email} ${s.receipt} ${s.lines.map(l => `${l.fund} ${l.tier ?? ""} ${l.dedication ?? ""}`).join(" ")}`.toLowerCase().includes(needle)));
+  return all.filter(s => (tests[filter] ?? tests[0])(s) && (!needle || `${s.name} ${s.email} ${s.receipt} ${s.lines.map(l => `${l.fund} ${l.tier ?? ""} ${l.dedication ?? ""}`).join(" ")}`.toLowerCase().includes(needle)));
+}
+export function filterDonors(all: Donor[], q: string, filter: number) {
+  const tests = [() => true, (d: Donor) => d.submissions.length > 1, (d: Donor) => d.monthly + d.yearly > 0, (d: Donor) => d.keepInTouch];
+  const needle = q.trim().toLowerCase();
+  return all.filter(d => (tests[filter] ?? tests[0])(d) && (!needle || `${d.name} ${d.email} ${d.submissions.map(s => s.receipt).join(" ")}`.toLowerCase().includes(needle)));
+}
+
+export function Submissions({ rows }: { rows: Submission[] }) {
+  const loaded = useLoaded("donations");
+  const [open, setOpen] = useState<Submission | null>(null);
 
   return (
     <>
@@ -131,7 +137,7 @@ export function Submissions({ q, filter }: { q: string; filter: number }) {
                 <td><code>{s.receipt}</code>{s.sample && <small><span className="sample-tag">Sample</span></small>}</td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={6} className="table-empty">{loaded ? "No donations yet." : "Loading…"}</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="table-empty">{loaded ? "No donations match the selected filters." : "Loading…"}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -150,14 +156,9 @@ export function Submissions({ q, filter }: { q: string; filter: number }) {
   );
 }
 
-export function Donors({ q, filter }: { q: string; filter: number }) {
-  const donations = useData("donations");
+export function Donors({ rows }: { rows: Donor[] }) {
   const loaded = useLoaded("donations");
   const [open, setOpen] = useState<Donor | null>(null);
-  const all = useMemo(() => groupDonors(groupSubmissions(donations)), [donations]);
-  const tests = [() => true, (d: Donor) => d.submissions.length > 1, (d: Donor) => d.monthly + d.yearly > 0, (d: Donor) => d.keepInTouch];
-  const needle = q.trim().toLowerCase();
-  const rows = all.filter(d => tests[filter](d) && (!needle || `${d.name} ${d.email} ${d.submissions.map(s => s.receipt).join(" ")}`.toLowerCase().includes(needle)));
 
   return (
     <>
@@ -176,7 +177,7 @@ export function Donors({ q, filter }: { q: string; filter: number }) {
                 <td>{fmtDate(d.last)}</td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={6} className="table-empty">{loaded ? "No donors yet." : "Loading…"}</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="table-empty">{loaded ? "No donors match the selected filters." : "Loading…"}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -197,8 +198,8 @@ export function Donors({ q, filter }: { q: string; filter: number }) {
 }
 
 /** CSV rows for the two grouped views. */
-export function exportSubmissions(donations: Donation[]) {
-  const rows = groupSubmissions(donations) as unknown as Row[];
+export function exportSubmissions(submissions: Submission[]) {
+  const rows = submissions as unknown as Row[];
   csvDownload("donation-submissions", [
     { label: "Date", get: () => null, csv: r => r.createdAt },
     { label: "Receipt", get: () => null, csv: r => r.receipt },
@@ -213,8 +214,8 @@ export function exportSubmissions(donations: Donation[]) {
   ], rows);
 }
 
-export function exportDonors(donations: Donation[]) {
-  const rows = groupDonors(groupSubmissions(donations)) as unknown as Row[];
+export function exportDonors(donors: Donor[]) {
+  const rows = donors as unknown as Row[];
   csvDownload("donors", [
     { label: "Donor", get: () => null, csv: r => r.name },
     { label: "Email", get: () => null, csv: r => r.email },
