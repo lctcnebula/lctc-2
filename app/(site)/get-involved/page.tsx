@@ -27,8 +27,8 @@ export default function GetInvolvedPage() {
             </div>
           </div>
           <div className="gift-cards">
-            <GeneralGiftCard />
             {givingTiers.map(t => <GiftCard key={t.name} t={t} />)}
+            <GeneralGiftCard />
           </div>
         </div>
       </section>

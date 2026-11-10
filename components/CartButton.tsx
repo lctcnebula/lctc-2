@@ -113,6 +113,7 @@ export function QtyInput({ id, value, onChange, label }: { id: string; value: nu
   return (
     <span className="qty-input">
       <label htmlFor={id}>Qty</label>
+      <button type="button" aria-label={`Decrease ${label}`} disabled={value <= 1} onClick={() => onChange(value - 1)}>−</button>
       <input id={id} type="text" inputMode="numeric" pattern="[0-9]*" aria-label={label} value={text} maxLength={2}
         onChange={e => {
           const v = e.target.value.replace(/\D/g, "").slice(0, 2);
@@ -121,6 +122,7 @@ export function QtyInput({ id, value, onChange, label }: { id: string; value: nu
           if (n >= 1) onChange(Math.min(MAX_QTY, n));
         }}
         onBlur={() => setText(String(value))} />
+      <button type="button" aria-label={`Increase ${label}`} disabled={value >= MAX_QTY} onClick={() => onChange(value + 1)}>+</button>
     </span>
   );
 }
@@ -138,13 +140,11 @@ export function GeneralGiftCard() {
     openGivingList();
   }
   return (
-    <article className="general-gift reveal">
-      <div className="general-gift-icon" aria-hidden="true">💙</div>
-      <div className="general-gift-copy">
-        <p className="kicker">General donation</p>
-        <h3>Give any amount</h3>
-        <p>Not sure what to fund? A general gift goes wherever students need it most this year: scholarships, tools and credentials.</p>
-      </div>
+    <article className="gift-card general-gift reveal">
+      <div className="gift-card-img"><img src="/assets/img/graduates.jpg" alt="" width={600} height={450} loading="lazy" /></div>
+      <h3>General donation</h3>
+      <p className="gift-card-text">Give any amount to help fund scholarships, tools and credentials wherever students need support most.</p>
+      <p className="gift-card-price">Your choice</p>
       <div className="general-gift-give">
         <div className="amount-field">
           <label htmlFor="gen-amt">Your amount</label>

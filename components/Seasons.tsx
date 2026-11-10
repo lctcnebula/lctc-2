@@ -90,12 +90,14 @@ function useReducedMotion() {
 
 function SantaHat() {
   return (
-    <svg viewBox="0 0 64 56" className="sz-hat">
+    <svg viewBox="0 0 64 64" className="sz-hat">
+      <g transform="translate(0 8)">
       <path d="M8 40 C 14 20, 30 6, 46 8 C 54 9, 58 16, 60 26 C 56 22, 52 20, 48 22 C 44 30, 46 38, 50 42 Z" fill="#d42a2f" />
       <path d="M46 8 C 54 9, 58 16, 60 26 C 56 22, 52 20, 48 22 C 47 16, 46 12, 46 8 Z" fill="#a51d24" />
       <path d="M14 30 C 22 18, 32 12, 40 12" stroke="#ff6b6b" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity=".55" />
       <rect x="3" y="37" width="52" height="13" rx="6.5" fill="#fff" stroke="#dfe6ee" strokeWidth="1.2" transform="rotate(-4 29 43)" />
       <circle cx="58" cy="30" r="6.5" fill="#fff" stroke="#dfe6ee" strokeWidth="1.2" className="sz-pom" />
+      </g>
     </svg>
   );
 }
@@ -207,9 +209,10 @@ export function LogoSeason() {
  * Winter: Christmas lights. Spring: a vine of flowers. Summer: a beach (waves, sand, shells).
  * Fall: a twine of orange and red leaves. All hang on the same scalloped line. */
 
-const SCALLOPS = 8;
+const SCALLOPS = 9;
 const PER = 4; // items per scallop
 const SAG = 10; // px
+const PROGRAM_ORNAMENTS = ["🚗", "🔧", "🧬", "🩺", "🔨", "✂️", "⚖️", "🍳", "🛡️", "🧸", "🩺", "🚒", "</>", "⚙️", "🔍", "💉", "🖌️", "🔥"];
 const BULB_COLORS = ["#ff4d4d", "#ffd23f", "#3ddc84", "#4dabff", "#ff8a3d"];
 const FLOWER_COLORS: [string, string][] = [["#f48fb1", "#ffd166"], ["#ffffff", "#ffc23d"], ["#c3a6ff", "#ffe08a"], ["#ff8fa3", "#fff1a8"], ["#ffd1e0", "#f4a259"]];
 const LEAF_COLORS: [string, string][] = [["#e8692a", "#a8401a"], ["#c8452c", "#7d2414"], ["#f2a33a", "#b46a12"], ["#d9572b", "#8f3216"], ["#e9b949", "#a7781a"]];
@@ -352,7 +355,7 @@ export function HeaderLights() {
               transform: `translateX(-50%) rotate(${b.rot.toFixed(1)}deg)`,
               ["--d" as string]: ((b.i * 0.37) % 2.4).toFixed(2) + "s",
             } as React.CSSProperties;
-            if (season === "winter") return <span key={b.i} className="sl-bulb" style={{ ...style, ["--c" as string]: BULB_COLORS[b.i % BULB_COLORS.length] }} />;
+            if (season === "winter") return <span key={b.i} className="sl-program" style={{ ...style, ["--c" as string]: BULB_COLORS[b.i % BULB_COLORS.length] }}>{PROGRAM_ORNAMENTS[b.i % PROGRAM_ORNAMENTS.length]}</span>;
             if (season === "spring") {
               const [petal, center] = FLOWER_COLORS[b.i % FLOWER_COLORS.length];
               return <span key={b.i} className={"sl-hang " + (b.i % 2 ? "leaf" : "flower")} style={style}>{b.i % 2 ? <GSprigLeaf /> : <GFlower petal={petal} center={center} />}</span>;

@@ -157,3 +157,11 @@ html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
   .season-logo *, .season-logo > *, .sl-bulb::after, .season-menu, .season-pill { animation: none !important; transition: none; }
   .sz-hat { transform: rotate(-16deg); }
 }
+
+.sl-program { position: absolute; font: 700 15px/1.2 monospace; transform-origin: 50% 0; color: var(--c); white-space: nowrap; filter: drop-shadow(0 0 4px var(--c)); animation: sl-program-glow 2.4s ease-in-out var(--d) infinite alternate; }
+@keyframes sl-program-glow { to { filter: drop-shadow(0 0 7px var(--c)) brightness(1.25); } }
+@media (max-width: 600px) { .sl-program { font-size: 9px; } }
+@media (prefers-reduced-motion: reduce) { .sl-program { animation: none; } }
+
+/* Keep edge ornaments inside the viewport while preserving their hanging glow. */
+.season-lights { overflow-x: clip; }

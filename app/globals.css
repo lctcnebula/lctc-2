@@ -1074,3 +1074,16 @@ a.person > p:not(.company) { display: -webkit-box; -webkit-line-clamp: 3; -webki
 .gift-card .qty-input { justify-content: center; }
 @media (max-width: 860px) { .gift-cards .general-gift { grid-template-columns: auto minmax(0, 1fr); } .general-gift-give { grid-column: 1 / -1; } }
 @media (max-width: 480px) { .gift-cards .general-gift { grid-template-columns: minmax(0, 1fr); padding: 22px; } .general-gift-icon { display: none; } .general-gift-give { flex-wrap: wrap; } }
+
+/* Program previews and donation card controls. */
+.path { position: relative; flex-wrap: wrap; }
+.path .path-photo { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; order: -1; }
+.path i { width: 54px; height: 54px; font-size: 1.8rem; }
+.path div { flex: 1; }
+.paths + .center { margin-top: 28px; }
+.qty-input { gap: 6px; flex-wrap: wrap; justify-content: center; }
+.qty-input button { width: 38px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--blue); font-size: 1.3rem; cursor: pointer; }
+.qty-input button:disabled { opacity: .4; cursor: default; }
+.qty-input button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.gift-cards .general-gift { grid-column: auto; display: flex; padding: 16px 16px 24px; border: 0; background: var(--blue-wash); gap: 12px; }
+.general-gift-give { flex-direction: column; align-items: center; width: 100%; margin-top: auto; }

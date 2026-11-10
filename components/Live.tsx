@@ -82,6 +82,7 @@ export function ProgramPaths({ limit }: { limit?: number }) {
       {programs.map(p => (
         <Link key={p.id} className="path" href={`/programs/${p.slug}`}>
           <i aria-hidden="true">{p.icon}</i>
+          <img className="path-photo" src={p.image} alt="" width={320} height={200} loading="lazy" />
           <div><small>{label(p.cat)} <SampleTag show={p.sample} /></small><b>{p.name}</b><span>{p.summary}</span></div>
         </Link>
       ))}

@@ -5,7 +5,6 @@ import UpcomingEvents from "@/components/UpcomingEvents";
 import GiveCta from "@/components/GiveCta";
 import { DonateButton } from "@/components/Actions";
 import { OutsideScholarshipsLink, ProgramCount, ProgramPaths, SchoolTicker } from "@/components/Live";
-import ProgramImpact from "@/components/ProgramImpact";
 import { grantTypes, site } from "@/lib/content";
 
 export default function Home() {
@@ -91,15 +90,15 @@ export default function Home() {
           <div className="head reveal">
             <div>
               <p className="kicker">The programs you support</p>
-              <h2>All <ProgramCount /> programs your gift reaches</h2>
+              <h2>See where your gift reaches</h2>
               <p>Every program pairs classroom learning with real equipment and industry standards.</p>
             </div>
           </div>
-          <ProgramPaths />
+          <ProgramPaths limit={9} />
+          <p className="center"><Link className="btn line" href="/programs">See all <ProgramCount /> programs →</Link></p>
         </div>
       </section>
 
-      <ProgramImpact />
 
       <section className="photo-band" aria-label="Our belief">
         <img src="/assets/img/sparks.jpg" alt="" width={1024} height={696} loading="lazy" />
