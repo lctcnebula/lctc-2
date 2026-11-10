@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { boardSlug } from "@/lib/store";
@@ -37,13 +38,13 @@ export default function BoardProfile({ slug }: { slug: string }) {
             {m.bio.trim()
               ? <Prose text={m.bio} />
               : <p className="lead-muted">{m.name} serves as {/^[aeiou]/i.test(m.role) ? "an" : "a"} {m.role} of the Lake County Tech Campus Foundation, helping expand opportunities for students across Lake and McHenry Counties.</p>}
-            <p style={{ marginTop: 32 }}><Link className="text-link" href="/board">← All board members</Link></p>
+            <p style={{ marginTop: 32 }}><Link className="text-link" href="/board"><Icon name="←" /> All board members</Link></p>
           </div>
         </div>
 
         <nav className="wrap profile-nav" aria-label="Other board members">
-          {prev ? <Link href={`/board/${boardSlug(prev)}`}><small>← Previous</small><b>{prev.name}</b></Link> : <span />}
-          {next ? <Link className="next" href={`/board/${boardSlug(next)}`}><small>Next →</small><b>{next.name}</b></Link> : <span />}
+          {prev ? <Link href={`/board/${boardSlug(prev)}`}><small><Icon name="←" /> Previous</small><b>{prev.name}</b></Link> : <span />}
+          {next ? <Link className="next" href={`/board/${boardSlug(next)}`}><small>Next <Icon name="→" /></small><b>{next.name}</b></Link> : <span />}
         </nav>
       </section>
     </>

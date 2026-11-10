@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 // Donations as people think of them. A checkout can hold several gifts (a toolkit, a scholarship,
 // a monthly gift…); each gift is stored as its own line, all sharing one receipt number.
@@ -64,7 +65,7 @@ function Panel({ title, onClose, children }: { title: string; onClose: () => voi
   return (
     <dialog ref={ref} className="drawer" onClose={onClose} aria-label={title}>
       <form method="dialog">
-        <header><h2>{title}</h2><button type="submit" className="x" aria-label="Close">×</button></header>
+        <header><h2>{title}</h2><button type="submit" className="x" aria-label="Close"><Icon name="close" /></button></header>
         <div className="drawer-body">{children}</div>
         <footer><span style={{ flex: 1 }} /><button type="submit" className="btn line sm">Close</button></footer>
       </form>
@@ -86,7 +87,7 @@ function ReceiptCard({ s }: { s: Submission }) {
             <div>
               <b>{lineLabel(l)}</b>
               {l.tier && <small>{l.fund}</small>}
-              {l.dedication && <small className="ded">🕊️ {l.dedication}</small>}
+              {l.dedication && <small className="ded"><Icon name="🕊️" /> {l.dedication}</small>}
               {l.note && <small>Note: “{l.note}”</small>}
             </div>
             <span>{money(l.amount)}{frequencies[l.freq]?.per}</span>
@@ -130,7 +131,7 @@ export function Submissions({ rows }: { rows: Submission[] }) {
                 <td>
                   <span className="gift-count">{s.lines.length} {s.lines.length === 1 ? "gift" : "gifts"}</span>
                   <small>{s.lines.map(lineLabel).join(" · ")}</small>
-                  {s.lines.some(l => l.dedication) && <small>🕊️ Dedicated gift</small>}
+                  {s.lines.some(l => l.dedication) && <small><Icon name="🕊️" /> Dedicated gift</small>}
                 </td>
                 <td className="num"><b>{money(s.today)}</b>{recurring(s) && <small>{recurring(s)}</small>}</td>
                 <td>{s.card}</td>

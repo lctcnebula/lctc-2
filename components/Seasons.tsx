@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 /*
  * Seasonal "wow factor" layer.
@@ -355,7 +356,7 @@ export function HeaderLights() {
               transform: `translateX(-50%) rotate(${b.rot.toFixed(1)}deg)`,
               ["--d" as string]: ((b.i * 0.37) % 2.4).toFixed(2) + "s",
             } as React.CSSProperties;
-            if (season === "winter") return <span key={b.i} className="sl-program" style={{ ...style, ["--c" as string]: BULB_COLORS[b.i % BULB_COLORS.length] }}>{PROGRAM_ORNAMENTS[b.i % PROGRAM_ORNAMENTS.length]}</span>;
+            if (season === "winter") return <span key={b.i} className="sl-program" style={{ ...style, ["--c" as string]: BULB_COLORS[b.i % BULB_COLORS.length] }}><Icon name={PROGRAM_ORNAMENTS[b.i % PROGRAM_ORNAMENTS.length]} /></span>;
             if (season === "spring") {
               const [petal, center] = FLOWER_COLORS[b.i % FLOWER_COLORS.length];
               return <span key={b.i} className={"sl-hang " + (b.i % 2 ? "leaf" : "flower")} style={style}>{b.i % 2 ? <GSprigLeaf /> : <GFlower petal={petal} center={center} />}</span>;
@@ -638,7 +639,7 @@ export function SeasonSwitcher() {
                 tabIndex={-1}
                 onClick={() => pick(o.value)}
               >
-                <span className="se" aria-hidden="true">{o.emoji}</span>
+                <span className="se" aria-hidden="true"><Icon name={o.emoji} /></span>
                 <span>{o.label}</span>
                 {o.value === "auto" && <span className="hint">{META[seasonForDate()].label}</span>}
               </button>
@@ -657,7 +658,7 @@ export function SeasonSwitcher() {
         onClick={() => setOpen(o => !o)}
         onKeyDown={e => { if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); setOpen(true); } }}
       >
-        <span className="se" aria-hidden="true">{m.emoji}</span>
+        <span className="se" aria-hidden="true"><Icon name={m.emoji} /></span>
         <span className="sn">{m.label}</span>
       </button>
     </div>

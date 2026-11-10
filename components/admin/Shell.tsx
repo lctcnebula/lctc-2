@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -73,14 +74,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <b>{user.name}</b>
           <span className="role-pill">{roleLabels[user.role]}</span>
           <div>
-            <Link href="/" target="_blank">View site ↗</Link>
+            <Link href="/" target="_blank">View site <Icon name="↗" /></Link>
             <button type="button" onClick={() => { signOut(); router.replace("/login"); }}>Sign out</button>
           </div>
         </div>
       </aside>
       <div className="admin-main">
         <div className="admin-top">
-          <button className="admin-burger" type="button" aria-expanded={open} aria-label="Menu" onClick={() => setOpen(o => !o)}>☰</button>
+          <button className="admin-burger" type="button" aria-expanded={open} aria-label="Menu" onClick={() => setOpen(o => !o)}><Icon name="☰" /></button>
           <span className="demo-flag">Demo checkout: no cards are charged</span>
         </div>
         {allowed ? children : (

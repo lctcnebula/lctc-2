@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 // Small pieces of public pages that read admin-managed data.
 
@@ -68,7 +69,7 @@ export function ContactDetails({ className, maps }: { className: string; maps?: 
     <dl className={className}>
       <div><dt>Email</dt><dd><a href={`mailto:${s.email}`}>{s.email}</a><CopyButton text={s.email} /></dd></div>
       {s.phone && <div><dt>Phone</dt><dd><a href={"tel:" + s.phone.replace(/[^\d+]/g, "")}>{s.phone}</a></dd></div>}
-      {s.address && <div><dt>Visit</dt><dd>{s.address}{maps && <><br /><a href={map} target="_blank" rel="noopener">Open in Maps →</a></>}</dd></div>}
+      {s.address && <div><dt>Visit</dt><dd>{s.address}{maps && <><br /><a href={map} target="_blank" rel="noopener">Open in Maps <Icon name="→" /></a></>}</dd></div>}
     </dl>
   );
 }
@@ -81,7 +82,7 @@ export function ProgramPaths({ limit }: { limit?: number }) {
     <div className="paths">
       {programs.map(p => (
         <Link key={p.id} className="path" href={`/programs/${p.slug}`}>
-          <i aria-hidden="true">{p.icon}</i>
+          <i aria-hidden="true"><Icon name={p.icon} /></i>
           <img className="path-photo" src={p.image} alt="" width={320} height={200} loading="lazy" />
           <div><small>{label(p.cat)} <SampleTag show={p.sample} /></small><b>{p.name}</b><span>{p.summary}</span></div>
         </Link>

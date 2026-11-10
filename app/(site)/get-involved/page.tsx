@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
@@ -43,7 +44,7 @@ export default function GetInvolvedPage() {
               <h2>T.E.C.H. Industry Partner Roadmap</h2>
               <p>Empowering students through industry collaboration. Start anywhere: following us online is a first step, and funding scholarships is the last.</p>
             </div>
-            <Link className="text-link" href="/contact?topic=Business%20partnership">Become a partner →</Link>
+            <Link className="text-link" href="/contact?topic=Business%20partnership">Become a partner <Icon name="→" /></Link>
           </div>
           <div className="roadmap">
             {partnerRoadmap.map(r => (
@@ -64,7 +65,7 @@ export default function GetInvolvedPage() {
               <p className="kicker">Volunteer &amp; partner</p>
               <h2>More ways to help</h2>
             </div>
-            <Link className="text-link" href="/contact">Contact the Foundation →</Link>
+            <Link className="text-link" href="/contact">Contact the Foundation <Icon name="→" /></Link>
           </div>
           <WaysToHelp />
         </div>

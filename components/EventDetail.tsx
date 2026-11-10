@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -66,10 +67,10 @@ export default function EventDetail({ slug }: { slug: string }) {
             {recaps.length > 0 && (
               <div className="recaps">
                 <h3>From the blog</h3>
-                {recaps.map(r => <Link key={r.id} className="text-link" href={`/blog/${r.slug}`}>{r.title} →</Link>)}
+                {recaps.map(r => <Link key={r.id} className="text-link" href={`/blog/${r.slug}`}>{r.title} <Icon name="→" /></Link>)}
               </div>
             )}
-            <p style={{ marginTop: 32 }}><Link className="text-link" href="/events">← All events</Link></p>
+            <p style={{ marginTop: 32 }}><Link className="text-link" href="/events"><Icon name="←" /> All events</Link></p>
           </div>
           <aside className="side-card">
             <dl style={{ display: "grid", gap: 14 }}>

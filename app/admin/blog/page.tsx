@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import Manager, { fmtDate } from "@/components/admin/Manager";
@@ -21,7 +22,7 @@ export default function BlogAdmin() {
       sort={(a, b) => b.date.localeCompare(a.date)}
       startNew={ev ? { title: `${ev.title} recap`, eventId: ev.id, image: ev.image } : null}
       filters={[{ label: "All", test: () => true }, { label: "Published", test: r => r.published }, { label: "Drafts", test: r => !r.published }]}
-      rowActions={r => r.published ? <Link className="link-btn" href={`/blog/${r.slug}`} target="_blank">View ↗</Link> : null}
+      rowActions={r => r.published ? <Link className="link-btn" href={`/blog/${r.slug}`} target="_blank">View <Icon name="↗" /></Link> : null}
       columns={[
         { label: "Date", get: r => fmtDate(r.date), csv: r => r.date },
         { label: "Title", get: r => <><b>{r.title}</b><small>{r.author}</small></>, csv: r => r.title },

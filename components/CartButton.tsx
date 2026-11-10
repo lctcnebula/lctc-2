@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -66,7 +67,7 @@ export function GivingSidebar() {
             <h2 id="gl-title">Your giving list</h2>
             <p>{cart.length ? `${cart.length} ${cart.length === 1 ? "gift" : "gifts"} for Lake County Tech Campus students` : "Nothing here yet"}</p>
           </div>
-          <button ref={closeBtn} type="button" className="gl-close" aria-label="Close giving list" onClick={() => setOpen(false)}>×</button>
+          <button ref={closeBtn} type="button" className="gl-close" aria-label="Close giving list" onClick={() => setOpen(false)}><Icon name="close" /></button>
         </header>
 
         {cart.length ? <>
@@ -81,7 +82,7 @@ export function GivingSidebar() {
           </footer>
         </> : (
           <div className="cart-empty">
-            <p>🎁 Your giving list is empty.</p>
+            <p><Icon name="🎁" /> Your giving list is empty.</p>
             <p className="hint">Choose a scholarship, a toolkit or another gift, and it&apos;ll wait here until you&apos;re ready to give.</p>
             <button className="btn blue" type="button" onClick={() => go("/get-involved#gifts")}>Choose a gift</button>
           </div>
@@ -169,11 +170,11 @@ export function GivingLines() {
         const d = describe(i);
         return (
           <li key={i.id}>
-            <i aria-hidden="true">{d.icon}</i>
+            <i aria-hidden="true"><Icon name={d.icon} /></i>
             <div className="cart-info">
               <b>{d.title}</b>
               <span>{frequencies[i.freq].label} · {d.tierLabel ? d.type.name : "Where it’s needed most"}</span>
-              {d.dedication && <span className="cart-ded">🕊️ {d.dedication}</span>}
+              {d.dedication && <span className="cart-ded"><Icon name="🕊️" /> {d.dedication}</span>}
               {d.fixed && (
                 <div className="qty-field sm">
                   <QtyInput id={"q-" + i.id} value={i.qty} onChange={n => setQty(i.id, n)} label={`How many: ${d.title}`} />

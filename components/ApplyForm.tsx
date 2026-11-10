@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useEffect, useRef, useState } from "react";
 import { insert, useData } from "@/lib/store";
@@ -160,7 +161,7 @@ export default function ApplyForm() {
                 {who.map(w => (
                   <label className="choice" key={w.id}>
                     <input type="radio" name="applicantType" value={w.id} checked={a.applicantType === w.id} onChange={() => pickType(w.id)} />
-                    <i aria-hidden="true">{w.icon}</i>
+                    <i aria-hidden="true"><Icon name={w.icon} /></i>
                     <div><b>{w.name}</b><span>{w.text}</span></div>
                   </label>
                 ))}
@@ -211,7 +212,7 @@ export default function ApplyForm() {
                 {types.map(g => (
                   <label className="choice" key={g.id}>
                     <input type="radio" name="grantType" value={g.id} checked={a.grantType === g.id} onChange={() => set("grantType", g.id)} />
-                    <i aria-hidden="true">{g.icon}</i>
+                    <i aria-hidden="true"><Icon name={g.icon} /></i>
                     <div><b>{g.name}</b><span>{g.text}</span></div>
                   </label>
                 ))}
@@ -303,7 +304,7 @@ export default function ApplyForm() {
         )}
 
         <div className="form-nav">
-          {step > 0 ? <button className="btn line" type="button" onClick={() => goTo(step - 1)}>← Back</button> : <span className="hint" style={{ alignSelf: "center" }}>Your progress saves on this device.</span>}
+          {step > 0 ? <button className="btn line" type="button" onClick={() => goTo(step - 1)}><Icon name="←" /> Back</button> : <span className="hint" style={{ alignSelf: "center" }}>Your progress saves on this device.</span>}
           <button className="btn blue" type="submit" disabled={busy}>{step < LAST ? "Continue →" : busy ? "Sending…" : "Submit application"}</button>
         </div>
       </form>

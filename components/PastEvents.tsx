@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { past, useData } from "@/lib/store";
@@ -21,7 +22,7 @@ export default function PastEvents() {
               <li key={e.id}>
                 <span className="past-date">{eventParts(e.date).full}</span>
                 <Link href={`/events/${e.slug}`}>{e.title}</Link>
-                {recap && <Link className="text-link" href={`/blog/${recap.slug}`}>Read the recap →</Link>}
+                {recap && <Link className="text-link" href={`/blog/${recap.slug}`}>Read the recap <Icon name="→" /></Link>}
               </li>
             );
           })}

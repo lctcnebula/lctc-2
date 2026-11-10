@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import DateFilter, { useAdminDateRange } from "@/components/admin/DateFilter";
 import { recordDate, withinDateRange } from "@/lib/date-range";
@@ -84,7 +85,7 @@ export default function Dashboard() {
                   return <li key={e.id}><Link href={`/admin/rsvps?event=${e.id}`}><b>{e.title}</b> · {n} going{e.capacity ? ` of ${e.capacity}` : ""}</Link><time>{fmtDate(e.date)}</time></li>;
                 })}
               </ul>
-            ) : <p className="hint">No upcoming events. <Link href="/admin/events">Add one →</Link></p>}
+            ) : <p className="hint">No upcoming events. <Link href="/admin/events">Add one <Icon name="→" /></Link></p>}
           </section>
         )}
       </div>

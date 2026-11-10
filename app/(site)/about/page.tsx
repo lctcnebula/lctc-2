@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
@@ -51,9 +52,9 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="promises reveal">
-              <div><i aria-hidden="true">🚪</i><small>Our purpose</small><b>Open doors to opportunity</b><p>Bring together community partners, industry leaders and philanthropic resources to expand opportunities for Tech Campus students.</p></div>
-              <div><i aria-hidden="true">🌱</i><small>Our commitment</small><b>Invest in what&apos;s possible</b><p>Strengthen career and technical education through meaningful experiences, innovative programs, industry-recognized credentials and student scholarships.</p></div>
-              <div><i aria-hidden="true">🧱</i><small>Our promise</small><b>Build the foundation for what&apos;s next</b><p>Champion opportunities that help students build the skills, confidence and experience to take their next step.</p></div>
+              <div><i aria-hidden="true"><Icon name="🚪" /></i><small>Our purpose</small><b>Open doors to opportunity</b><p>Bring together community partners, industry leaders and philanthropic resources to expand opportunities for Tech Campus students.</p></div>
+              <div><i aria-hidden="true"><Icon name="🌱" /></i><small>Our commitment</small><b>Invest in what&apos;s possible</b><p>Strengthen career and technical education through meaningful experiences, innovative programs, industry-recognized credentials and student scholarships.</p></div>
+              <div><i aria-hidden="true"><Icon name="🧱" /></i><small>Our promise</small><b>Build the foundation for what&apos;s next</b><p>Champion opportunities that help students build the skills, confidence and experience to take their next step.</p></div>
             </div>
           </div>
         </div>
@@ -66,12 +67,12 @@ export default function AboutPage() {
               <p className="kicker">Four pillars</p>
               <h2>Where the Foundation focuses</h2>
             </div>
-            <Link className="text-link" href="/get-involved#gifts">Ways to give →</Link>
+            <Link className="text-link" href="/get-involved#gifts">Ways to give <Icon name="→" /></Link>
           </div>
           <div className="pillars">
             {pillars.map(p => (
               <article className="pillar reveal" key={p.name}>
-                <i aria-hidden="true">{p.icon}</i>
+                <i aria-hidden="true"><Icon name={p.icon} /></i>
                 <b>{p.name}</b>
                 <span>{p.text}</span>
                 <ul className="pillar-gifts">

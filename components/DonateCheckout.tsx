@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -205,7 +206,7 @@ export default function DonateCheckout() {
     <div className="form-card donate-card" ref={top}>
       <div>
         <p className="demo-note" role="note">
-          <span aria-hidden="true">⚠️</span>
+          <span aria-hidden="true"><Icon name="⚠️" /></span>
           <span><b>Demo mode.</b> No card is charged. Completed gifts show up in the admin dashboard. Pay with test card <code title="Click to fill" onClick={() => fill("4242424242424242")}>4242 4242 4242 4242</code> or <code title="Click to fill" onClick={() => fill("5555555555554444")}>5555 5555 5555 4444</code>, any future date and any CVC. <code title="Click to fill" onClick={() => fill("4000000000000002")}>4000 0000 0000 0002</code> shows a decline.</span>
         </p>
         <ol className="steps" aria-label="Checkout steps">
@@ -232,7 +233,7 @@ export default function DonateCheckout() {
                 {(Object.keys(purposes) as Purpose[]).map(k => (
                   <label className="choice" key={k}>
                     <input type="radio" name="purpose" checked={purpose === k} onChange={() => { setPurpose(k); setDedErr(""); }} />
-                    <i aria-hidden="true">{purposes[k].icon}</i>
+                    <i aria-hidden="true"><Icon name={purposes[k].icon} /></i>
                     <div><b>{purposes[k].label}</b><span>{purposes[k].text}</span></div>
                   </label>
                 ))}
@@ -280,7 +281,7 @@ export default function DonateCheckout() {
 
         {step === 2 && (
           <section>
-            <button className="back" type="button" onClick={() => setStep(1)}>← Review giving list</button>
+            <button className="back" type="button" onClick={() => setStep(1)}><Icon name="←" /> Review giving list</button>
             <div className="summary order">
               <ul>
                 {cart.map(i => { const d = describe(i); return <li key={i.id}><span>{d.tierLabel || d.title}{i.freq !== "once" && ` (${frequencies[i.freq].adj})`}{d.dedication && <small>{d.dedication}</small>}</span><b>{d.price}</b></li>; })}
@@ -295,9 +296,9 @@ export default function DonateCheckout() {
               </div>
               <div className="test-cards" role="group" aria-label="Fill a test card">
                 <span>Test cards:</span>
-                <button type="button" onClick={() => fill("4242424242424242")}>Visa ✓</button>
-                <button type="button" onClick={() => fill("5555555555554444")}>Mastercard ✓</button>
-                <button type="button" className="bad" onClick={() => fill("4000000000000002")}>Declined ✕</button>
+                <button type="button" onClick={() => fill("4242424242424242")}>Visa <Icon name="✓" /></button>
+                <button type="button" onClick={() => fill("5555555555554444")}>Mastercard <Icon name="✓" /></button>
+                <button type="button" className="bad" onClick={() => fill("4000000000000002")}>Declined <Icon name="✕" /></button>
               </div>
               <div className="cardbox">
                 {field("card", "Card number", { inputMode: "numeric", placeholder: "1234 1234 1234 1234" }, formatCard,
@@ -333,8 +334,8 @@ export default function DonateCheckout() {
               <p className="dm-sub" style={{ marginBottom: 0 }}>Your {receipt.items.length > 1 ? `${receipt.items.length} gifts are` : "gift is"} on their way to Lake County Tech Campus students. A receipt would go to {receipt.email}.</p>
               {receipt.items.map(i => { const d = dedicationLine(i.purpose, i); return d && <blockquote className="dedication" key={i.id}>{d}</blockquote>; })}
               <p className="keep-note">{receipt.keep
-                ? <>💌 We&apos;ll keep in touch at <b>{receipt.email}</b> with stories from the students you&apos;re helping.</>
-                : <>💌 Want to hear how your gift is used? Tick &ldquo;Keep in touch&rdquo; next time and we&apos;ll send student stories.</>}</p>
+                ? <><Icon name="💌" /> We&apos;ll keep in touch at <b>{receipt.email}</b> with stories from the students you&apos;re helping.</>
+                : <><Icon name="💌" /> Want to hear how your gift is used? Tick &ldquo;Keep in touch&rdquo; next time and we&apos;ll send student stories.</>}</p>
               <dl className="receipt">
                 <div><dt>Confirmation</dt><dd>{receipt.id}</dd></div>
                 {receipt.items.map(i => { const d = describe(i); return <div key={i.id}><dt>{d.tierLabel || d.title}</dt><dd>{d.price}</dd></div>; })}
@@ -346,7 +347,7 @@ export default function DonateCheckout() {
               <p className="dm-sub" style={{ fontSize: ".78rem" }}>This is a demo receipt. No money was charged and no email was sent.</p>
               <div className="done-actions">
                 <button className="btn blue" type="button" onClick={giveAgain}>Give again</button>
-                <ConfettiButton className="btn line">More confetti 🎉</ConfettiButton>
+                <ConfettiButton className="btn line">More confetti <Icon name="🎉" /></ConfettiButton>
               </div>
             </section>
           );

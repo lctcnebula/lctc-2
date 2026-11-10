@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Manager, { type Row } from "@/components/admin/Manager";
 import { socials } from "@/components/SocialLinks";
@@ -49,7 +50,7 @@ export default function BoardAdmin() {
         <>
           <button type="button" className="link-btn" aria-label={`Move ${r.name} up`} disabled={pos(r.id) === 0} onClick={() => move(r.id, -1)}>↑</button>
           <button type="button" className="link-btn" aria-label={`Move ${r.name} down`} disabled={pos(r.id) === last - 1} onClick={() => move(r.id, 1)}>↓</button>
-          <a className="link-btn" href={`/board/${boardSlug({ name: r.name, slug: r.slug })}`} target="_blank">View ↗</a>
+          <a className="link-btn" href={`/board/${boardSlug({ name: r.name, slug: r.slug })}`} target="_blank">View <Icon name="↗" /></a>
         </>
       )}
       blank={() => ({ name: "", slug: "", role: "Board Member", company: "", bio: "", photo: "", website: "", linkedin: "", facebook: "", instagram: "", x: "", order: last + 1 })}

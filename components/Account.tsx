@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,7 +45,7 @@ export default function Account() {
                 return <li key={r.id}>{e ? <Link href={`/events/${e.slug}`}>{e.title}</Link> : "Removed event"}<span>{e && eventParts(e.date).full}{r.guests ? ` · +${r.guests} guest${r.guests > 1 ? "s" : ""}` : ""}</span></li>;
               })}
             </ul>
-          ) : <p className="hint">No RSVPs yet. <Link href="/events">See upcoming events →</Link></p>}
+          ) : <p className="hint">No RSVPs yet. <Link href="/events">See upcoming events <Icon name="→" /></Link></p>}
         </section>
         <section className="aside-box">
           <h2>My giving</h2>
@@ -52,7 +53,7 @@ export default function Account() {
             <ul className="plain-list">
               {gifts.map(d => <li key={d.id}><b>{money(d.amount)}{frequencies[d.freq]?.per}</b><span>{d.fund} · {new Date(d.createdAt).toLocaleDateString("en-US")} · {d.receipt}{d.dedication && <> · {d.dedication}</>}</span></li>)}
             </ul>
-          ) : <p className="hint">No gifts yet. <Link href="/donate">Make your first gift →</Link></p>}
+          ) : <p className="hint">No gifts yet. <Link href="/donate">Make your first gift <Icon name="→" /></Link></p>}
         </section>
       </div>
     </div>

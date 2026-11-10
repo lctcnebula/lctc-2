@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useSite } from "./Providers";
 import { DEMO_PASSWORD } from "@/lib/auth";
@@ -104,7 +105,7 @@ export default function DemoAutofill() {
   return (
     <button type="button" className="demo-autofill" title="Fill this page's form with sample answers (demo only)"
       onClick={() => { const n = fillPage(); say(n ? `⚡ Filled ${n} field${n === 1 ? "" : "s"} with sample answers` : "No form to fill on this page"); }}>
-      <span aria-hidden="true">⚡</span> Autofill
+      <span aria-hidden="true"><Icon name="⚡" /></span> Autofill
     </button>
   );
 }

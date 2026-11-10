@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 // One table + editor used by every admin section. Each section describes its columns and
 // form fields; this handles search, filters, create/edit/delete, CSV export and image upload.
@@ -194,7 +195,7 @@ export default function Manager(p: Props) {
           <form onSubmit={save} noValidate>
             <header>
               <h2>{isNew ? (p.newLabel ?? "Add new") : canEdit ? "Edit" : "Details"}</h2>
-              <button type="button" className="x" aria-label="Close" onClick={() => setDraft(null)}>×</button>
+              <button type="button" className="x" aria-label="Close" onClick={() => setDraft(null)}><Icon name="close" /></button>
             </header>
             <div className="drawer-body">
               {draft.sample && <p className="demo-note">This is sample content. Saving any change marks it as your own.</p>}

@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import Manager from "@/components/admin/Manager";
@@ -12,9 +13,9 @@ export default function ProgramsAdmin() {
       intro="Programs shown on the site and offered in the grant application."
       search={r => `${r.name} ${r.summary} ${cat(r.cat)}`}
       sort={(a, b) => a.name.localeCompare(b.name)}
-      rowActions={r => <Link className="link-btn" href={`/programs/${r.slug}`} target="_blank">View ↗</Link>}
+      rowActions={r => <Link className="link-btn" href={`/programs/${r.slug}`} target="_blank">View <Icon name="↗" /></Link>}
       columns={[
-        { label: "Program", get: r => <><b>{r.icon} {r.name}</b><small>{r.summary}</small></>, csv: r => r.name },
+        { label: "Program", get: r => <><b><Icon name={r.icon} /> {r.name}</b><small>{r.summary}</small></>, csv: r => r.name },
         { label: "Pathway", get: r => cat(r.cat), csv: r => cat(r.cat) },
         { label: "Length", get: r => r.length, csv: r => r.length },
       ]}

@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import { ConfettiButton, DonateButton } from "./Actions";
 
 export default function GiveCta() {
@@ -9,7 +10,7 @@ export default function GiveCta() {
       </div>
       <div className="hero-actions" style={{ marginTop: 0 }}>
         <DonateButton className="btn solid">Make your gift today</DonateButton>
-        <ConfettiButton>Throw confetti 🎉</ConfettiButton>
+        <ConfettiButton>Throw confetti <Icon name="🎉" /></ConfettiButton>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import Link from "next/link";
 import { photoCredits, site } from "@/lib/content";
 import { ContactDetails } from "./Live";
@@ -37,7 +38,7 @@ export default function Footer() {
           <div>
             <h4>Contact</h4>
             <ContactDetails className="foot-contact" />
-            <p style={{ marginTop: 16 }}><Link href="/login">Sign in →</Link></p>
+            <p style={{ marginTop: 16 }}><Link href="/login">Sign in <Icon name="→" /></Link></p>
           </div>
         </div>
 

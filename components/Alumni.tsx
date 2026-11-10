@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useState } from "react";
 import { insert, now, useData } from "@/lib/store";
@@ -99,7 +100,7 @@ export function AlumniForm() {
       <div className="field">
         <label htmlFor="al-photo">Photo <span className="opt">(optional)</span></label>
         <div className="photo-pick">
-          {f.photo ? <img src={f.photo} alt="Your photo" width={64} height={64} /> : <span aria-hidden="true">📷</span>}
+          {f.photo ? <img src={f.photo} alt="Your photo" width={64} height={64} /> : <span aria-hidden="true"><Icon name="📷" /></span>}
           <input id="al-photo" type="file" accept="image/*" onChange={async e => {
             const file = e.target.files?.[0]; if (!file) return;
             try { const photo = await shrink(file, 600); setF(p => ({ ...p, photo })); setErr(""); } catch (x) { setErr((x as Error).message); }

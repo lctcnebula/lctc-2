@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,7 @@ export default function LoginForm() {
         <div className="field"><label htmlFor="l-email">Email</label><input id="l-email" type="email" value={f.email} onChange={set("email")} autoComplete="email" /></div>
         <div className="field"><label htmlFor="l-pass">Password</label><input id="l-pass" type="password" value={f.password} onChange={set("password")} autoComplete={mode === "in" ? "current-password" : "new-password"} /></div>
         <button className="btn blue" type="submit" disabled={busy} style={{ width: "100%" }}>{mode === "in" ? "Sign in" : "Create account"}</button>
-        <p className="hint" style={{ marginTop: 14, textAlign: "center" }}><Link href="/">← Back to the site</Link></p>
+        <p className="hint" style={{ marginTop: 14, textAlign: "center" }}><Link href="/"><Icon name="←" /> Back to the site</Link></p>
       </form>
 
       <aside className="aside-box demo-box">

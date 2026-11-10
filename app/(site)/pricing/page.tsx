@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
@@ -25,7 +26,7 @@ export default function PricingPage() {
               <h2>Student-level giving tiers</h2>
               <p>Each tier has a fixed price and pays for something specific a student needs. At checkout you choose how many, for example two $500 toolkits.</p>
             </div>
-            <Link className="text-link" href="/donations">All types of donations →</Link>
+            <Link className="text-link" href="/donations">All types of donations <Icon name="→" /></Link>
           </div>
           <table className="price-table reveal">
             <thead><tr><th scope="col">Giving opportunity</th><th scope="col">Amount</th><th scope="col"><span className="sr-only">Give</span></th></tr></thead>
@@ -34,7 +35,7 @@ export default function PricingPage() {
                 <tr key={t.name}>
                   <th scope="row">{t.item}<small>{t.name}</small></th>
                   <td>{price(t)}{!t.min && <small> each</small>}</td>
-                  <td><Link className="text-link" href={give(t.name)} aria-label={`Give ${price(t)} for ${t.item.toLowerCase()}`}>Give →</Link></td>
+                  <td><Link className="text-link" href={give(t.name)} aria-label={`Give ${price(t)} for ${t.item.toLowerCase()}`}>Give <Icon name="→" /></Link></td>
                 </tr>
               ))}
             </tbody>

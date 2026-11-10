@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Manager from "@/components/admin/Manager";
 
@@ -11,7 +12,7 @@ export default function ScholarshipsAdmin() {
       columns={[
         { label: "Name", get: r => <><b>{r.name}</b><small>{r.who}</small></>, csv: r => r.name },
         { label: "Award", get: r => r.award, csv: r => r.award },
-        { label: "Link", get: r => r.url ? <a href={r.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>Open ↗</a> : "—", csv: r => r.url },
+        { label: "Link", get: r => r.url ? <a href={r.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>Open <Icon name="↗" /></a> : "—", csv: r => r.url },
       ]}
       blank={() => ({ name: "", who: "", award: "", how: "Apply online", url: "" })}
       fields={[

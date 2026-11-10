@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useEffect, useState } from "react";
 
@@ -23,14 +24,14 @@ export default function Pager({ page, pages, go, total, size, noun }: ReturnType
   return (
     <nav aria-label={`More ${noun}`}>
       <div className="pager">
-        <button type="button" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Previous page">←</button>
+        <button type="button" onClick={() => go(page - 1)} disabled={page === 1} aria-label="Previous page"><Icon name="←" /></button>
         {nums.map((n, i) => (
           <span key={n} style={{ display: "contents" }}>
             {i > 0 && n - nums[i - 1] > 1 && <span className="gap" aria-hidden="true">…</span>}
             <button type="button" className="num" onClick={() => go(n)} aria-current={n === page ? "page" : undefined} aria-label={`Page ${n}`}>{n}</button>
           </span>
         ))}
-        <button type="button" onClick={() => go(page + 1)} disabled={page === pages} aria-label="Next page">→</button>
+        <button type="button" onClick={() => go(page + 1)} disabled={page === pages} aria-label="Next page"><Icon name="→" /></button>
       </div>
       <p className="pager-note" aria-live="polite">Showing {first}–{last} of {total} {noun}</p>
     </nav>

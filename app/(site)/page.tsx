@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import Link from "next/link";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
@@ -19,7 +20,7 @@ export default function Home() {
         <div className="wrap">
           <h2>Creating bright futures for students <br className="br-wide" />and families in Lake County</h2>
           <p>Tech Campus students learn a trade with their hands, on the same equipment they&apos;ll use at work. The Foundation makes sure cost never decides who gets to finish.</p>
-          <p style={{ marginTop: 18 }}><Link className="text-link" href="/about">More about the Foundation →</Link></p>
+          <p style={{ marginTop: 18 }}><Link className="text-link" href="/about">More about the Foundation <Icon name="→" /></Link></p>
         </div>
       </section>
 
@@ -76,7 +77,7 @@ export default function Home() {
           <div className="aid-list reveal">
             {grantTypes.map(g => (
               <div className="aid-item" key={g.id}>
-                <i aria-hidden="true">{g.icon}</i>
+                <i aria-hidden="true"><Icon name={g.icon} /></i>
                 <b>{g.name}</b>
                 <span>{g.text}</span>
               </div>
@@ -93,7 +94,7 @@ export default function Home() {
               <h2>See where your gift reaches</h2>
               <p>Every program pairs classroom learning with real equipment and industry standards.</p>
             </div>
-            <Link className="btn line" href="/programs">See all <ProgramCount /> programs →</Link>
+            <Link className="btn line" href="/programs">See all <ProgramCount /> programs <Icon name="→" /></Link>
           </div>
           <ProgramPaths limit={9} />
         </div>
@@ -116,7 +117,7 @@ export default function Home() {
               <h2>We are stronger together</h2>
               <p>Foundation gatherings where donors, alumni and students meet. RSVP online in a minute.</p>
             </div>
-            <Link className="text-link" href="/events">All events →</Link>
+            <Link className="text-link" href="/events">All events <Icon name="→" /></Link>
           </div>
           <UpcomingEvents limit={3} />
         </div>
@@ -125,7 +126,7 @@ export default function Home() {
       <section className="block" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <GiveCta />
-          <p style={{ textAlign: "center", marginTop: 28 }}><Link className="text-link" href="/get-involved">More ways to help →</Link></p>
+          <p style={{ textAlign: "center", marginTop: 28 }}><Link className="text-link" href="/get-involved">More ways to help <Icon name="→" /></Link></p>
         </div>
       </section>
     </>

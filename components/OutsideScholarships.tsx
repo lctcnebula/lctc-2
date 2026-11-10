@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useData } from "@/lib/store";
 
@@ -21,7 +22,7 @@ export default function OutsideScholarships() {
             <div className="sch" key={s.id}>
               <div><b>{s.name}</b><small>{s.who}</small></div>
               <span className="award">{s.award}</span>
-              <a className="btn line" href={s.url} target="_blank" rel="noopener">{s.how || "Learn more"} →</a>
+              <a className="btn line" href={s.url} target="_blank" rel="noopener">{s.how || "Learn more"} <Icon name="→" /></a>
             </div>
           ))}
         </div>

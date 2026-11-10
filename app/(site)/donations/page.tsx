@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
@@ -19,7 +20,7 @@ export default function DonationsPage() {
           <div className="give-types">
             {donationTypes.map(t => (
               <article className="give-type reveal" key={t.slug}>
-                <i aria-hidden="true">{t.icon}</i>
+                <i aria-hidden="true"><Icon name={t.icon} /></i>
                 <h2>{t.name}</h2>
                 <p>{t.text}</p>
                 <Link className="btn blue" href={`/donate?type=${t.slug}`}>Give to {t.name.toLowerCase()}</Link>

@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useState } from "react";
 import Manager, { fmtDateTime } from "@/components/admin/Manager";
@@ -80,7 +81,7 @@ function Lines() {
         { label: "Email", get: () => null, csv: r => r.email, className: "hide" },
         { label: "Amount", get: r => <b>{money(r.amount)}{frequencies[r.freq as Freq]?.short}</b>, csv: r => r.amount, className: "num" },
         { label: "Frequency", get: () => null, csv: r => r.freq, className: "hide" },
-        { label: "Fund", get: r => <>{r.fund}{r.tier && <small>{r.tier}</small>}{r.dedication && <small>🕊️ {r.dedication}</small>}</>, csv: r => r.tier ? `${r.fund} · ${r.tier}` : r.fund },
+        { label: "Fund", get: r => <>{r.fund}{r.tier && <small>{r.tier}</small>}{r.dedication && <small><Icon name="🕊️" /> {r.dedication}</small>}</>, csv: r => r.tier ? `${r.fund} · ${r.tier}` : r.fund },
         { label: "Dedication", get: () => null, csv: r => [r.dedication, r.note].filter(Boolean).join(" Note: "), className: "hide" },
         { label: "Keep in touch", get: () => null, csv: r => (r.keepInTouch ? "yes" : "no"), className: "hide" },
         { label: "Method", get: r => r.card, csv: r => r.card },

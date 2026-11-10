@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -61,7 +62,7 @@ export default function Stats() {
         </div>
         <p className="stat-note">
           {r.sample ? <><span className="sample-tag">Sample figures</span> </> : null}
-          {r.year} school year · <Link href="/impact">See every year →</Link>
+          {r.year} school year · <Link href="/impact">See every year <Icon name="→" /></Link>
         </p>
       </div>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useData } from "@/lib/store";
@@ -35,7 +36,7 @@ export default function ProgramDetail({ slug }: { slug: string }) {
             {p.outcome && <div className="outcome"><b>Where it leads</b>{p.outcome}</div>}
             {next.id !== p.id && (
               <p style={{ marginTop: 32 }}>
-                <Link className="text-link" href={`/programs/${next.slug}`}>Next program: {next.name} →</Link>
+                <Link className="text-link" href={`/programs/${next.slug}`}>Next program: {next.name} <Icon name="→" /></Link>
               </p>
             )}
           </div>

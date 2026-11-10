@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useData } from "@/lib/store";
@@ -30,12 +31,12 @@ export default function ProgramExplorer() {
               <SampleTag show={p.sample} />
             </div>
             <div className="pc-body">
-              <i aria-hidden="true">{p.icon}</i>
+              <i aria-hidden="true"><Icon name={p.icon} /></i>
               <h3>{p.name}</h3>
               <p>{p.summary}</p>
               <footer>
                 {p.length ? <small>{p.length}</small> : <span />}
-                <em>Explore program →</em>
+                <em>Explore program <Icon name="→" /></em>
               </footer>
             </div>
           </Link>

@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import Manager, { fmtDate } from "@/components/admin/Manager";
@@ -28,7 +29,7 @@ export default function EventsAdmin() {
           {posts.some(p => p.eventId === r.id)
             ? <Link className="link-btn" href="/admin/blog">Post</Link>
             : <Link className="link-btn" href={`/admin/blog?event=${r.id}`}>Write post</Link>}
-          {r.published && <Link className="link-btn" href={`/events/${r.slug}`} target="_blank">View ↗</Link>}
+          {r.published && <Link className="link-btn" href={`/events/${r.slug}`} target="_blank">View <Icon name="↗" /></Link>}
         </>
       )}
       columns={[

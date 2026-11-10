@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 
 import Link from "next/link";
 import { useData } from "@/lib/store";
@@ -30,7 +31,7 @@ export default function BlogPost({ slug }: { slug: string }) {
           {p.excerpt && <p className="article-lede">{p.excerpt}</p>}
           <Prose text={p.body} />
           {ev && <p className="article-event">From the event <Link href={`/events/${ev.slug}`}>{ev.title}</Link></p>}
-          <p style={{ marginTop: 32 }}><Link className="text-link" href="/blog">← All posts</Link></p>
+          <p style={{ marginTop: 32 }}><Link className="text-link" href="/blog"><Icon name="←" /> All posts</Link></p>
         </div>
       </section>
     </>
