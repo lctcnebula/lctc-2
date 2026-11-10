@@ -1175,3 +1175,8 @@ button:focus-visible:active,a:focus-visible:active{transform:none;transition:non
   button:not(:disabled):active,a.btn:active,.pill-btn:active,.cart-btn:active{transform:none}
   .card:hover,.card:hover .media img,.program-card:hover,.program-card:hover .pc-media img,.path:hover,.person:hover,.alum-card:hover,.gift-card:hover .gift-card-img img,.next-up:hover,.btn:hover,.pill-btn:hover,.socials a:hover,.program-impact div:hover,.pillars>a:hover,.demo-autofill:hover{transform:none}
 }
+
+/* Match generated indicators to the shared SVG stroke. */
+.more::after,.link-cards b::after{content:"";display:inline-block;width:1em;height:1em;vertical-align:-.125em;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14m-6-6 6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat}
+.more:has(.ui-icon)::after{display:none}
+.learn li::before{content:"";background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E") center/20px no-repeat}
