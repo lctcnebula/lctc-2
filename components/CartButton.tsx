@@ -113,7 +113,7 @@ export function QtyInput({ id, value, onChange, label }: { id: string; value: nu
   return (
     <span className="qty-input">
       <label htmlFor={id}>Qty</label>
-      <button type="button" aria-label={`Decrease ${label}`} disabled={value <= 1} onClick={() => onChange(value - 1)}>−</button>
+      <button type="button" aria-label={`Decrease ${label}`} disabled={value <= 1} onClick={() => onChange(value - 1)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button>
       <input id={id} type="text" inputMode="numeric" pattern="[0-9]*" aria-label={label} value={text} maxLength={2}
         onChange={e => {
           const v = e.target.value.replace(/\D/g, "").slice(0, 2);
@@ -122,7 +122,7 @@ export function QtyInput({ id, value, onChange, label }: { id: string; value: nu
           if (n >= 1) onChange(Math.min(MAX_QTY, n));
         }}
         onBlur={() => setText(String(value))} />
-      <button type="button" aria-label={`Increase ${label}`} disabled={value >= MAX_QTY} onClick={() => onChange(value + 1)}>+</button>
+      <button type="button" aria-label={`Increase ${label}`} disabled={value >= MAX_QTY} onClick={() => onChange(value + 1)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button>
     </span>
   );
 }

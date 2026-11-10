@@ -87,15 +87,15 @@ export default function Home() {
 
       <section className="block tint">
         <div className="wrap">
-          <div className="head reveal">
+          <div className="head reveal program-preview-head">
             <div>
               <p className="kicker">The programs you support</p>
               <h2>See where your gift reaches</h2>
               <p>Every program pairs classroom learning with real equipment and industry standards.</p>
             </div>
+            <Link className="btn line" href="/programs">See all <ProgramCount /> programs →</Link>
           </div>
           <ProgramPaths limit={9} />
-          <p className="center"><Link className="btn line" href="/programs">See all <ProgramCount /> programs →</Link></p>
         </div>
       </section>
 

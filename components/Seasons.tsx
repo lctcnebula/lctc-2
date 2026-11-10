@@ -91,7 +91,7 @@ function useReducedMotion() {
 function SantaHat() {
   return (
     <svg viewBox="0 0 64 64" className="sz-hat">
-      <g transform="translate(0 8)">
+      <g transform="translate(64 8) scale(-1 1)">
       <path d="M8 40 C 14 20, 30 6, 46 8 C 54 9, 58 16, 60 26 C 56 22, 52 20, 48 22 C 44 30, 46 38, 50 42 Z" fill="#d42a2f" />
       <path d="M46 8 C 54 9, 58 16, 60 26 C 56 22, 52 20, 48 22 C 47 16, 46 12, 46 8 Z" fill="#a51d24" />
       <path d="M14 30 C 22 18, 32 12, 40 12" stroke="#ff6b6b" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity=".55" />
