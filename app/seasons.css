@@ -46,7 +46,7 @@ html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
 @keyframes sz-spin { to { transform: rotate(360deg); } }
 
 /* ---------- Christmas lights along the bottom of the header ---------- */
-.season-lights { position: absolute; left: 0; right: 0; top: calc(100% + 12px); height: 28px; pointer-events: none; }
+.season-lights { position: absolute; left: 0; right: 0; top: 100%; height: 28px; pointer-events: none; }
 .sl-wire { position: absolute; left: 0; top: 0; width: 100%; height: 12px; display: block; overflow: visible; }
 .sl-bulb { position: absolute; width: 7px; height: 13px; transform-origin: 50% 0; }
 .sl-bulb::before { content: ""; position: absolute; left: 1.5px; top: 0; width: 4px; height: 4px; border-radius: 1px; background: #2f4a35; }
