@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 // One shared stroke, optical size and baseline across public and admin screens.
 const paths: Record<string, string> = {
+  "chevron-down": "m6 9 6 6 6-6",
   "languages": "M3 5h12M9 3v2m3 0c0 6-4 9-9 11m2-8c1 4 4 7 8 8m1 5 4-11 4 11m-7-3h6",
   "arrow-right": "M5 12h14m-6-6 6 6-6 6",
   "arrow-left": "M19 12H5m6-6-6 6 6 6",

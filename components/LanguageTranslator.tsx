@@ -17,6 +17,7 @@ type TranslateWindow = Window & {
 export default function LanguageTranslator() {
   const pathname = usePathname();
   const host = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDetailsElement>(null);
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [pageUrl, setPageUrl] = useState("");
@@ -65,18 +66,40 @@ export default function LanguageTranslator() {
 
   useEffect(() => { setPageUrl(window.location.href); }, [pathname]);
 
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !menu.current?.contains(event.target)) menu.current?.removeAttribute("open");
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || !menu.current?.open) return;
+      menu.current.removeAttribute("open");
+      menu.current.querySelector("summary")?.focus();
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
   const fallback = `https://translate.google.com/translate?sl=en&tl=es&u=${encodeURIComponent(pageUrl)}`;
 
   return (
     <div className="translation-bar notranslate" translate="no">
       <div className="wrap translation-inner">
-        <div className="translation-label"><Icon name="languages" /><span>Translate this site</span></div>
-        <div className="translation-control">
+        <details className="translation-menu" ref={menu}>
+          <summary className="translation-trigger"><Icon name="languages" /><span>Language</span><Icon name="chevron-down" /></summary>
+          <div className="translation-panel">
+            <p className="translation-title">Choose your language</p>
+            <div className="translation-control">
           {/* Google owns this empty subtree; React never renders children into it. */}
           <div ref={host} id="google_translate_element" />
           {status === "loading" && <span className="translation-status" role="status">Loading languages…</span>}
           {status === "error" && <a className="translation-fallback" href={fallback} target="_blank" rel="noopener noreferrer">Open in Google Translate <Icon name="arrow-up-right" /><span className="sr-only"> (opens in a new tab)</span></a>}
-        </div>
+            </div>
+          </div>
+        </details>
       </div>
       {mounted && <Script
         id="lctc-google-translate"

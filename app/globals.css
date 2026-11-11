@@ -19,7 +19,7 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-padding-top: 165px; }
+html { scroll-padding-top: 145px; }
 body { font-family: var(--body); color: var(--ink); background: var(--paper); line-height: 1.65; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
@@ -1181,16 +1181,24 @@ button:focus-visible:active,a:focus-visible:active{transform:none;transition:non
 .more:has(.ui-icon)::after{display:none}
 .learn li::before{content:"";background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E") center/20px no-repeat}
 
-/* Keep the translator visible without crowding the main navigation. */
-.translation-bar{position:relative;z-index:1;background:var(--blue-night);color:#fff;border-bottom:1px solid #ffffff1a;font-size:.75rem}
-.translation-inner{display:flex;align-items:center;justify-content:flex-end;gap:16px;min-height:55px;padding-block:6px}
-.translation-label{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap}
-.translation-label .ui-icon{width:18px;height:18px}
-.translation-control{min-width:190px;min-height:40px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
-.translation-control .goog-te-gadget{font-family:var(--body);font-size:10px;color:#c6d6e3}
-.translation-control .goog-te-gadget a{color:#fff}
-.translation-control .goog-te-combo{font-family:var(--body);font-size:12px;line-height:1.4;margin:0 0 3px;width:100%;max-width:250px;min-height:32px;padding:5px 8px;border:1px solid #c6d6e3;border-radius:6px;color:var(--ink);background:#fff;cursor:pointer}
-.translation-control .goog-te-combo:focus-visible{outline:3px solid #ffbc75;outline-offset:3px}
-.translation-status{color:#d9e5ee}
-.translation-fallback{color:#fff;text-underline-offset:3px;line-height:1.5}
-@media(max-width:480px){.translation-inner{justify-content:space-between;gap:10px}.translation-label{font-size:.7rem;gap:6px}.translation-control{min-width:0;max-width:55%}.translation-control .goog-te-combo{max-width:180px}.translation-fallback{font-size:.7rem}}
+/* A quiet utility control; the translator lives in its own popover. */
+.translation-bar{position:relative;z-index:5;background:#fff;color:var(--muted);font-size:.75rem}
+.translation-inner{display:flex;justify-content:flex-end;align-items:center;height:34px}
+.translation-menu{position:relative}
+.translation-trigger{list-style:none;display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px;line-height:20px;user-select:none}
+.translation-trigger::-webkit-details-marker{display:none}
+.translation-trigger>.ui-icon:first-child{width:16px;height:16px}
+.translation-trigger>.ui-icon:last-child{width:12px;height:12px}
+.translation-trigger:focus-visible{outline:3px solid #5fa8e0;outline-offset:2px}
+.translation-menu[open]>.translation-trigger{background:var(--blue-wash);color:var(--blue)}
+.translation-panel{position:absolute;right:0;top:calc(100% + 6px);width:min(280px,calc(100vw - 32px));padding:18px;background:white;color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px #0a25401a}
+.translation-title{font-size:13px;font-weight:600;margin-bottom:12px}
+.translation-control{min-height:46px}
+.translation-control .goog-te-gadget{font-family:var(--body);font-size:10px;line-height:18px;color:var(--muted)}
+.translation-control .goog-te-gadget a{color:var(--muted)}
+.translation-control .goog-te-gadget img{display:inline-block;width:auto;height:14px;vertical-align:middle}
+.translation-control .goog-te-combo{font-family:var(--body);font-size:13px;margin:0 0 10px;width:100%;min-height:38px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:#fff;cursor:pointer}
+.translation-control .goog-te-combo:focus-visible{outline:3px solid #5fa8e0;outline-offset:2px}
+.translation-status{font-size:12px;color:var(--muted)}
+.translation-fallback{font-size:12px;color:var(--blue);text-underline-offset:3px}
+@media(hover:hover) and (pointer:fine){.translation-trigger:hover{background:var(--mist);color:var(--blue)}}
