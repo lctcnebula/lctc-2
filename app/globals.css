@@ -1167,8 +1167,8 @@ button:not(:disabled),a.btn,.pill-btn,.cart-btn{transition:transform 160ms cubic
 button:not(:disabled):active,a.btn:active,.pill-btn:active,.cart-btn:active{transform:scale(.97)}
 button:focus-visible,a:focus-visible{outline:3px solid #5fa8e0;outline-offset:4px}
 button:focus-visible:active,a:focus-visible:active{transform:none;transition:none}
-.menu-toggle,.admin-burger,.gl-close,.dialog-close,.gallery-arrows button,.dialog-nav button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
-.menu-toggle{flex-direction:column}
+.admin-burger,.gl-close,.dialog-close,.gallery-arrows button,.dialog-nav button{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.menu-toggle{min-width:44px;min-height:44px}
 .socials svg{flex-shrink:0}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
