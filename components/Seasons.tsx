@@ -6,8 +6,8 @@ import Icon from "@/components/Icon";
  *  - Season is chosen on the client only (after hydration) from the month, unless the
  *    visitor picked one with the pill (localStorage "lctc-season").
  *  - <html data-season="..."> lets CSS theme things.
- *  - LogoSeason / HeaderLights decorate the header; SeasonAmbient is a ~30s particle
- *    "video" over the page; SeasonSwitcher is the bottom-right pill.
+ *  - LogoSeason / HeaderLights decorate the header; SeasonAmbient is a continuous particle
+ *    loop over the page; SeasonSwitcher is the bottom-right pill.
  */
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
@@ -257,11 +257,9 @@ export function HeaderLights() {
   );
 }
 
-/* ---------- Ambient ~30 second particle "video" ---------- */
+/* ---------- Continuous seasonal particle loop ---------- */
 
-const DURATION = 30_000;
 const FADE_IN = 1500;
-const FADE_OUT = 3500;
 
 type P = { x: number; y: number; r: number; vx: number; vy: number; rot: number; vr: number; ph: number; c: string; k: number };
 
@@ -370,7 +368,7 @@ const BASE_ALPHA: Record<Season, number> = { winter: .9, fall: .8, spring: .8, s
 const DENSITY: Record<Season, number> = { winter: 16000, fall: 52000, spring: 34000, summer: 40000 };
 const MAX: Record<Season, number> = { winter: 110, fall: 26, spring: 42, summer: 36 };
 
-/** Fills its banner (the hero at the top of each page); plays ~30s after load (and after each switch), then fades away. */
+/** Continuously fills its banner, pausing offscreen or in hidden tabs. */
 export function SeasonAmbient() {
   const s = useSeason();
   const reduced = useReducedMotion();
@@ -405,10 +403,10 @@ export function SeasonAmbient() {
       if (dead) return;
       const dt = last ? Math.min(now - last, 50) : 16;
       last = now;
-      elapsed += dt;
+      elapsed = Math.min(elapsed + dt, FADE_IN);
       const k = dt / 16.67;
 
-      const fade = Math.min(1, elapsed / FADE_IN) * Math.min(1, Math.max(0, (DURATION - elapsed) / FADE_OUT));
+      const fade = elapsed / FADE_IN;
       ctx.clearRect(0, 0, w, h);
       ctx.globalAlpha = BASE_ALPHA[season] * fade;
       const base = ctx.globalAlpha;
@@ -425,7 +423,6 @@ export function SeasonAmbient() {
         draw(ctx, season, parts[i], now);
       }
 
-      if (elapsed >= DURATION) { stop(); setLive(false); return; }
       raf = requestAnimationFrame(frame);
     };
 

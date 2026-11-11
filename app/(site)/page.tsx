@@ -63,7 +63,7 @@ export default function Home() {
       </section>
 
       <section className="aid" aria-labelledby="aid-title">
-        <div className="wrap" style={{ paddingBlock: "clamp(80px, 10vw, 120px)" }}>
+        <div className="wrap" style={{ paddingBlock: "var(--section-space)" }}>
           <div className="reveal">
             <p className="kicker">For students &amp; teachers</p>
             <h2 id="aid-title">Need support for your program?</h2>
