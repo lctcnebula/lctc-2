@@ -1,3 +1,4 @@
+import LanguageTranslator from "@/components/LanguageTranslator";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { GivingSidebar } from "@/components/CartButton";
@@ -10,6 +11,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       <main id="main">{children}</main>
       <Footer />
+      <LanguageTranslator />
       <SeasonSwitcher />
       <GivingSidebar />
     </>

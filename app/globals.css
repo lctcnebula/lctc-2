@@ -19,7 +19,7 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-padding-top: 145px; }
+html { scroll-padding-top: 105px; }
 body { font-family: var(--body); color: var(--ink); background: var(--paper); line-height: 1.65; -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
@@ -1181,17 +1181,16 @@ button:focus-visible:active,a:focus-visible:active{transform:none;transition:non
 .more:has(.ui-icon)::after{display:none}
 .learn li::before{content:"";background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E") center/20px no-repeat}
 
-/* A quiet utility control; the translator lives in its own popover. */
-.translation-bar{position:relative;z-index:5;background:#fff;color:var(--muted);font-size:.75rem}
-.translation-inner{display:flex;justify-content:flex-end;align-items:center;height:34px}
+/* Floating translation control, outside the header to preserve viewport positioning. */
+.translation-widget{position:fixed;left:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:70;color:var(--ink);font-size:.75rem}
+.translation-inner{display:flex;align-items:center}
 .translation-menu{position:relative}
-.translation-trigger{list-style:none;display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px;line-height:20px;user-select:none}
+.translation-trigger{list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:#fff;box-shadow:0 4px 18px #0a254014;cursor:pointer;font-size:13px;font-weight:600;line-height:20px;user-select:none}
 .translation-trigger::-webkit-details-marker{display:none}
-.translation-trigger>.ui-icon:first-child{width:16px;height:16px}
-.translation-trigger>.ui-icon:last-child{width:12px;height:12px}
+.translation-trigger>.ui-icon{width:18px;height:18px}
 .translation-trigger:focus-visible{outline:3px solid #5fa8e0;outline-offset:2px}
 .translation-menu[open]>.translation-trigger{background:var(--blue-wash);color:var(--blue)}
-.translation-panel{position:absolute;right:0;top:calc(100% + 6px);width:min(280px,calc(100vw - 32px));padding:18px;background:white;color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px #0a25401a}
+.translation-panel{position:absolute;left:0;bottom:calc(100% + 10px);width:min(280px,calc(100vw - 32px));padding:18px;background:white;color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px #0a25401a}
 .translation-title{font-size:13px;font-weight:600;margin-bottom:12px}
 .translation-control{min-height:46px}
 .translation-control .goog-te-gadget{font-family:var(--body);font-size:10px;line-height:18px;color:var(--muted)}
@@ -1202,3 +1201,5 @@ button:focus-visible:active,a:focus-visible:active{transform:none;transition:non
 .translation-status{font-size:12px;color:var(--muted)}
 .translation-fallback{font-size:12px;color:var(--blue);text-underline-offset:3px}
 @media(hover:hover) and (pointer:fine){.translation-trigger:hover{background:var(--mist);color:var(--blue)}}
+
+@media(max-width:600px){.translation-widget{left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}.translation-trigger{width:44px;height:44px;padding:0;justify-content:center}.translation-trigger>span{display:none}.translation-panel{max-height:calc(100dvh - 90px);overflow-y:auto}}

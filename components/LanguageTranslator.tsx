@@ -86,10 +86,10 @@ export default function LanguageTranslator() {
   const fallback = `https://translate.google.com/translate?sl=en&tl=es&u=${encodeURIComponent(pageUrl)}`;
 
   return (
-    <div className="translation-bar notranslate" translate="no">
-      <div className="wrap translation-inner">
+    <div className="translation-widget notranslate" translate="no">
+      <div className="translation-inner">
         <details className="translation-menu" ref={menu}>
-          <summary className="translation-trigger"><Icon name="languages" /><span>Language</span><Icon name="chevron-down" /></summary>
+          <summary className="translation-trigger" aria-label="Translate this page"><Icon name="languages" /><span>Translate</span></summary>
           <div className="translation-panel">
             <p className="translation-title">Choose your language</p>
             <div className="translation-control">

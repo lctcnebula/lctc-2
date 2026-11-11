@@ -1,6 +1,5 @@
 "use client";
 import Icon from "@/components/Icon";
-import LanguageTranslator from "@/components/LanguageTranslator";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,7 +35,6 @@ export default function Header() {
 
   return (
     <header className={"site" + (scrolled ? " scrolled" : "")}>
-      <LanguageTranslator />
       <HeaderLights />
       <div className="wrap bar">
         <Link className="brand" href="/" aria-label="LCTC Foundation home">
