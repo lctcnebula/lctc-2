@@ -21,8 +21,8 @@ html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
 .sz-hat { animation: sz-pop .7s cubic-bezier(.2, 1.4, .4, 1) both, sz-hat 4.5s ease-in-out .7s infinite; }
 .sz-pom { transform-box: fill-box; transform-origin: 50% 0; animation: sz-pom 4.5s ease-in-out .7s infinite; }
 
-/* Fall: squirrel with an acorn on the end of the grey bar + maple leaves on the shield */
-.sz-squirrel { width: 11%; left: 94.5%; top: -27%; }
+/* Fall: squirrel beside the lower-left logo edge; leaves stay on the shield. */
+.sz-squirrel { width: 10%; left: -3.5%; top: 48%; }
 .sz-tail { transform-box: view-box; transform-origin: 40px 56px; animation: sz-tail 3.2s ease-in-out 1s infinite; }
 .sz-leaf.a { width: 9%; left: -3%; top: -12%; transform: rotate(-28deg); animation: sz-pop .7s cubic-bezier(.2, 1.4, .4, 1) both, sz-leaf 5s ease-in-out infinite; }
 .sz-leaf.b { width: 6%; left: 5%; top: -6%; transform: rotate(24deg); animation: sz-pop .7s .15s cubic-bezier(.2, 1.4, .4, 1) both, sz-leaf 6s ease-in-out .4s infinite reverse; }
@@ -46,7 +46,7 @@ html[data-season="fall"]   { --season-accent: #ff8a3d; --season-tint: #fff4ea; }
 @keyframes sz-spin { to { transform: rotate(360deg); } }
 
 /* ---------- Christmas lights along the bottom of the header ---------- */
-.season-lights { position: absolute; left: 0; right: 0; top: calc(100% - 2px); height: 26px; pointer-events: none; }
+.season-lights { position: absolute; left: 0; right: 0; top: calc(100% + 12px); height: 28px; pointer-events: none; }
 .sl-wire { position: absolute; left: 0; top: 0; width: 100%; height: 12px; display: block; overflow: visible; }
 .sl-bulb { position: absolute; width: 7px; height: 13px; transform-origin: 50% 0; }
 .sl-bulb::before { content: ""; position: absolute; left: 1.5px; top: 0; width: 4px; height: 4px; border-radius: 1px; background: #2f4a35; }
